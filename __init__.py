@@ -38,7 +38,7 @@ class nqdm(tqdm.tqdm):
         self.delay = 0
 
         # arguments are saved in self.arguments attribute
-        self.arguments = args
+        self.arguments = self.__preprocess__(args) 
 
     def __iter__(self):
         """
@@ -81,6 +81,33 @@ class nqdm(tqdm.tqdm):
         finally:
             self.n = n
             self.close()
+
+    def __checkit__(self, data):
+        """
+        Identifies the type of data. If the data is the output
+        of an outer nqdm loop, then it extracts the information.
+        """
+        if not isinstance(data, tuple):
+            return data
+
+        if not(isinstance(data[0], int)):
+            return data
+
+        if not (isinstance(data[1], tuple)):
+            return data
+
+        if len(data[1]) == 0:
+
+            #scalar
+            return data[0]
+        if data[1][0] is None:
+
+            #array
+            return data[1][1]
+        else:
+
+            #hash
+            return dict(data[1])
     def __transformate__(self):
         """
         Transformates the following data types into suitable input format:
@@ -103,6 +130,7 @@ class nqdm(tqdm.tqdm):
     def __limit__(self, *args):
         """
         Calculates the total number of iterations over every loops.
+        
         Parameters
         ----------
         *args 
@@ -126,8 +154,36 @@ class nqdm(tqdm.tqdm):
             product *= leng
 
         return product
+    
+    def __preprocess__(self, *args):
+        """
+        Checks if any of the arguments are outputs of an outer nqdm loop
+        
+        Parameters
+        ----------
+        *args:
+            Unpacked list of arguments ready to be processed
+
+        Returns
+        ----------
+        new_args:
+            Preprocessed arguments
+        """
+
+        new_args = []
+        for arg_hidden in args:
+            for arg in arg_hidden:
+                arg = self.__checkit__(arg)
+                new_args.append(arg)
+        
+        return new_args
+            
+            
+
     def __ndrate__(self, point, *args):
         """
+        Finds out the offsets of each argument and saves the current element if needed
+        
         Parameters
         ----------
         point: int
