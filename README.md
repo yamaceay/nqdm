@@ -27,6 +27,7 @@ Let's explore some use cases of nqdm:
 ### Working With Different Data Types
 
 **Length variables (int, float)**
+
 NQDM:
 
 ```
@@ -76,6 +77,7 @@ However, NQDM is more readable, has a better output format and is simpler.
 
 
 **Lists and NumPy arrays**
+
 NQDM:
 
 ```
