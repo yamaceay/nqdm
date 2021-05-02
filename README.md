@@ -1,5 +1,7 @@
 # NQDM
 
+![Logo](https://user-images.githubusercontent.com/46201716/116823016-4d8b3900-ab82-11eb-9661-ea9dc75d93e3.png)
+
 A more generalised implementation to TQDM-progress bars, 
 which simulates a single loop for multiple loops and returns 
 multiple indices at the same time. It is compatible with many data types, 
