@@ -126,9 +126,9 @@ NQDM:
 
 ![NQDM_03](https://user-images.githubusercontent.com/46201716/116821097-c6859300-ab78-11eb-95e9-0a7ec46a4631.png)
 
-QDM:
+TQDM:
 
-![TQDM_03](https://user-images.githubusercontent.com/46201716/116821904-43fed280-ab7c-11eb-9532-0e086b0a2c01.png)
+![TQDM_03](https://user-images.githubusercontent.com/46201716/116823383-7e6c6d80-ab84-11eb-84c5-1fd65b659ae4.png)
 
 
 **RESULT:** NQDM has many important advantages. It is more readable 
@@ -164,7 +164,8 @@ NQDM:
 
 TQDM:
 
-![TQDM_04](https://user-images.githubusercontent.com/46201716/116821277-88d53a00-ab79-11eb-9ffa-ef5b6969dfdd.png)
+![TQDM_04](https://user-images.githubusercontent.com/46201716/116823409-a8259480-ab84-11eb-8b0b-d52365dfc0d5.png)
+
 
 
 **RESULT:** NQDM seems to be better integrated for dicts and Pandas.Series.
