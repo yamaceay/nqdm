@@ -201,7 +201,7 @@ TQDM:
 
 **RESULT:** They both have inconsistencies about unfinished progress bars and
 newline openings. It is open for discussion, which one would outperform in many
-more levels, but still NQDM might be better implemented because of multi-indexing cdapability.
+more levels, but still NQDM might be better implemented because of multi-indexing capability.
 
 ## Built With
 
