@@ -48,8 +48,11 @@ for i in tqdm(range(int(len_1))):
   for j in tqdm(range(len_2)):
     print([i, j])
 ```
+NQDM:
 
 ![NQDM_01](https://user-images.githubusercontent.com/46201716/116820687-87564280-ab76-11eb-9bcb-138aaba6e434.png)
+
+TQDM:
 
 ![TQDM_01](https://user-images.githubusercontent.com/46201716/116820698-91784100-ab76-11eb-8a3b-a06c20a3585e.png)
 
@@ -81,7 +84,11 @@ for i in tqdm(range(len(arg_1))):
     print([arg_1[i], j)
 ```
 
+NQDM:
+
 ![NQDM_02](https://user-images.githubusercontent.com/46201716/116820837-5591ab80-ab77-11eb-9954-f9f9d60d24c9.png)
+
+TQDM:
 
 ![TQDM_02](https://user-images.githubusercontent.com/46201716/116820849-68a47b80-ab77-11eb-80a5-27757a1ad5a9.png)
 
@@ -113,10 +120,13 @@ for i in tqdm(arg_1):
     print([i, arg_2[j]])
 ```
 
+NQDM:
+
 ![NQDM_03](https://user-images.githubusercontent.com/46201716/116821097-c6859300-ab78-11eb-95e9-0a7ec46a4631.png)
 
-![TQDM_03](https://user-images.githubusercontent.com/46201716/116821050-7f979d80-ab78-11eb-84f9-f551dcb071bd.png)
+QDM:
 
+![TQDM_03](https://user-images.githubusercontent.com/46201716/116821904-43fed280-ab7c-11eb-9532-0e086b0a2c01.png)
 
 
 **RESULT:** NQDM has many important advantages. It is more readable 
@@ -146,7 +156,11 @@ for i in tqdm(range(len(arg_1))):
     print([list(arg_1.items())[i], {arg_2.index[j]: arg_2.values[j]}])
 ```
 
+NQDM:
+
 ![NQDM_04](https://user-images.githubusercontent.com/46201716/116821270-7fe46880-ab79-11eb-9727-875093e7d2c1.png)
+
+TQDM:
 
 ![TQDM_04](https://user-images.githubusercontent.com/46201716/116821277-88d53a00-ab79-11eb-9ffa-ef5b6969dfdd.png)
 
@@ -176,7 +190,11 @@ for outer in tqdm(list_of_list_of_lists):
       print(inner)
 ```
 
+NQDM:
+
 ![NQDM_05](https://user-images.githubusercontent.com/46201716/116821688-29782980-ab7b-11eb-9ca1-4f9ed816daba.png)
+
+TQDM:
 
 ![TQDM_05](https://user-images.githubusercontent.com/46201716/116821692-2da44700-ab7b-11eb-84a4-9782ee9312af.png)
 
