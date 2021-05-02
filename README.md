@@ -73,7 +73,7 @@ TQDM:
 
 ```
 arg_1 = [1, 2, 3]
-arg_2 = np.array([4, 5, 6])
+arg_2 = numpy.array([4, 5, 6])
 
 for i in tqdm(range(len(arg_1))):
   for j in tqdm(range(len(arg_2))):
