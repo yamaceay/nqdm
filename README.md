@@ -1,7 +1,9 @@
 # NQDM
 
 A more generalised implementation to TQDM-progress bars, 
-which simulates a single loop for multiple loops and returns multiple indices at the same time. 
+which simulates a single loop for multiple loops and returns 
+multiple indices at the same time. It is compatible with many data types, 
+is customizable and beginner-friendly.
 
 ### Installing
 
@@ -44,16 +46,16 @@ len_2 = 3
 
 for i in tqdm(range(int(len_1))):
   for j in tqdm(range(len_2)):
-    print([(i, ()), (j, ())])
+    print([i, j])
 ```
 
-![NQDM_01](https://user-images.githubusercontent.com/46201716/116811201-49422a00-ab48-11eb-8463-7aac66c51bdf.png)
+![NQDM_01](https://user-images.githubusercontent.com/46201716/116820687-87564280-ab76-11eb-9bcb-138aaba6e434.png)
 
-![TQDM_01](https://user-images.githubusercontent.com/46201716/116811230-70006080-ab48-11eb-96e4-83f9214bdf1f.png)
+![TQDM_01](https://user-images.githubusercontent.com/46201716/116820698-91784100-ab76-11eb-8a3b-a06c20a3585e.png)
 
 
-**RESULT:** There are almost no fundamental differences between these approaches. 
-However, NQDM is more readable, has a better output format and is simpler.  
+**RESULT:** As it is clear, NQDM is more readable, has a 
+better output format, reducing the dimensionality by 1 and is simpler. 
 
 
 **Lists and NumPy arrays**
@@ -62,7 +64,7 @@ NQDM:
 
 ```
 arg_1 = [1, 2, 3]
-arg_2 = numpy.array([4, 5, 6])
+arg_2 = np.array([4, 5, 6])
 
 for i in nqdm(arg_1, arg_2):
   print(i)
@@ -72,20 +74,21 @@ TQDM:
 
 ```
 arg_1 = [1, 2, 3]
-arg_2 = numpy.array([4, 5, 6])
+arg_2 = np.array([4, 5, 6])
 
 for i in tqdm(range(len(arg_1))):
-  for j in tqdm(range(len(arg_2))):
-    print([(i, (None, arg_1[i])), (j, (None, arg_2[j]))])
+  for j in tqdm(arg_2):
+    print([arg_1[i], j)
 ```
 
-![NQDM_02](https://user-images.githubusercontent.com/46201716/116811241-85758a80-ab48-11eb-83ff-7f0d37a3662f.png)
+![NQDM_02](https://user-images.githubusercontent.com/46201716/116820837-5591ab80-ab77-11eb-9954-f9f9d60d24c9.png)
 
-![TQDM_02](https://user-images.githubusercontent.com/46201716/116811242-8c9c9880-ab48-11eb-8544-f3808107b89b.png)
+![TQDM_02](https://user-images.githubusercontent.com/46201716/116820849-68a47b80-ab77-11eb-80a5-27757a1ad5a9.png)
 
 
-**RESULT:** The output of TQDM is hard to interpret. 
-NQDM seems to be more beginner-friendly for iterating over multiple arrays at the same time.
+
+**RESULT:** The output of TQDM is slightly harder to interpret. NQDM seems to be 
+more beginner-friendly for iterating over multiple arrays at the same time.
 
 **Strings**
 
@@ -105,14 +108,15 @@ TQDM:
 arg_1 = list("abc")
 arg_2 = "cde"
 
-for i in tqdm(range(len(arg_2))):
+for i in tqdm(arg_1):
   for j in tqdm(range(len(arg_2))):
-    print([(i, (None, arg_1[i])), (j, (None, arg_2[i]))])
+    print([i, arg_2[j]])
 ```
 
-![NQDM_03](https://user-images.githubusercontent.com/46201716/116811247-9b834b00-ab48-11eb-927d-bc6d2ea60fcd.png)
+![NQDM_03](https://user-images.githubusercontent.com/46201716/116821097-c6859300-ab78-11eb-95e9-0a7ec46a4631.png)
 
-![TQDM_03](https://user-images.githubusercontent.com/46201716/116811250-a50cb300-ab48-11eb-8a40-3f114a9c6e18.png)
+![TQDM_03](https://user-images.githubusercontent.com/46201716/116821050-7f979d80-ab78-11eb-84f9-f551dcb071bd.png)
+
 
 
 **RESULT:** NQDM has many important advantages. It is more readable 
@@ -139,21 +143,16 @@ arg_2 = pd.Series(["horse", "cat", "mouse"], index=[978, 979, 980])
 
 for i in tqdm(range(len(arg_1))):
   for j in tqdm(range(len(arg_2))):
-    print([(i, list(arg_1.items())[i]),
-    (j, list(arg_2.index)[j], list(arg_2.values)[j])
-    ])
+    print([list(arg_1.items())[i], {arg_2.index[j]: arg_2.values[j]}])
 ```
 
-![NQDM_04](https://user-images.githubusercontent.com/46201716/116811259-b05fde80-ab48-11eb-8370-000017f70bf2.png)
+![NQDM_04](https://user-images.githubusercontent.com/46201716/116821270-7fe46880-ab79-11eb-9727-875093e7d2c1.png)
 
-![TQDM_04](https://user-images.githubusercontent.com/46201716/116811260-b2c23880-ab48-11eb-8149-43bf92d7e214.png)
+![TQDM_04](https://user-images.githubusercontent.com/46201716/116821277-88d53a00-ab79-11eb-9ffa-ef5b6969dfdd.png)
 
 
 **RESULT:** NQDM seems to be better integrated for dicts and Pandas.Series.
-That means you may experience a boost in your data science projects switching from TQDM to NQDM!
-
-
-### A Quick Comparison Of NQDM with TQDM
+That means you may experience a boost in your data science projects switching from TQDM to NQDM.
 
 **3D-Lists:**
 
@@ -177,14 +176,14 @@ for outer in tqdm(list_of_list_of_lists):
       print(inner)
 ```
 
-![NQDM_05](https://user-images.githubusercontent.com/46201716/116811272-c4a3db80-ab48-11eb-912a-9c4322ff1ac2.png)
+![NQDM_05](https://user-images.githubusercontent.com/46201716/116821688-29782980-ab7b-11eb-9ca1-4f9ed816daba.png)
 
-![TQDM_05](https://user-images.githubusercontent.com/46201716/116811276-cf5e7080-ab48-11eb-8841-398d0045672b.png)
+![TQDM_05](https://user-images.githubusercontent.com/46201716/116821692-2da44700-ab7b-11eb-84a4-9782ee9312af.png)
 
 
-**RESULT:** NQDM is having trouble converting any outer NQDM loop's output to input.
-It is better using TQDM in the case of multi-level lists for now. It is still an open issue and 
-I would like to see your contribution :)
+**RESULT:** They both have inconsistencies about unfinished progress bars and
+newline openings. It is open for discussion, which one would outperform in many
+more levels, but still NQDM might be better implemented because of multi-indexing cdapability.
 
 ## Built With
 
@@ -204,6 +203,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 * It's worth mentioning that this module is built on top of [TQDM](https://tqdm.github.io/),  I would like to
 * thank them for doing the real hard job and making this process of creating progress bars easy and flexible. 
-* This module still has issues and I would be more than happy to see your contribution :)
-
-
