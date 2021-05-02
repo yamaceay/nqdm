@@ -21,7 +21,6 @@ First of all, you need to import nqdm.
 from nqdm import nqdm
 ```
 
-Then it is ready to use!
 Let's explore some use cases of nqdm:
 
 ### Working With Different Data Types
