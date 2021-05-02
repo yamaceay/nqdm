@@ -48,29 +48,10 @@ for i in tqdm(range(int(len_1))):
     print([(i, ()), (j, ())])
 ```
 
-NQDM: 
+![NQDM_01](https://user-images.githubusercontent.com/46201716/116811201-49422a00-ab48-11eb-8463-7aac66c51bdf.png)
 
-100%|██████████| 6/6 [00:00<00:00, 18766.46it/s]
+![TQDM_01](https://user-images.githubusercontent.com/46201716/116811230-70006080-ab48-11eb-96e4-83f9214bdf1f.png)
 
-[(0, ()), (0, ())]
-[(1, ()), (0, ())]
-[(0, ()), (1, ())]
-[(1, ()), (1, ())]
-[(0, ()), (2, ())]
-[(1, ()), (2, ())]
-
-TQDM:
-
- 0%|          | 0/2 [00:00<?, ?it/s]
-100%|██████████| 3/3 [00:00<00:00, 18531.53it/s]
-
-100%|██████████| 3/3 [00:00<00:00, 20729.67it/s]
-100%|██████████| 2/2 [00:00<00:00, 262.59it/s][(0, ()), (0, ())]
-[(0, ()), (1, ())]
-[(0, ()), (2, ())]
-[(1, ()), (0, ())]
-[(1, ()), (1, ())]
-[(1, ()), (2, ())]
 
 **RESULT:** There are almost no fundamental differences between these approaches. 
 However, NQDM is more readable, has a better output format and is simpler.  
@@ -99,37 +80,10 @@ for i in tqdm(range(len(arg_1))):
     print([(i, (None, arg_1[i])), (j, (None, arg_2[j]))])
 ```
 
-NQDM:
+![NQDM_02](https://user-images.githubusercontent.com/46201716/116811241-85758a80-ab48-11eb-83ff-7f0d37a3662f.png)
 
-100%|██████████| 9/9 [00:00<00:00, 18192.16it/s]
+![TQDM_02](https://user-images.githubusercontent.com/46201716/116811242-8c9c9880-ab48-11eb-8544-f3808107b89b.png)
 
-[(0, (None, 1)), (0, (None, 4))]
-[(1, (None, 2)), (0, (None, 4))]
-[(2, (None, 3)), (0, (None, 4))]
-[(0, (None, 1)), (1, (None, 5))]
-[(1, (None, 2)), (1, (None, 5))]
-[(2, (None, 3)), (1, (None, 5))]
-[(0, (None, 1)), (2, (None, 6))]
-[(1, (None, 2)), (2, (None, 6))]
-[(2, (None, 3)), (2, (None, 6))]
-
-TQDM:
-
- 0%|          | 0/3 [00:00<?, ?it/s]
-100%|██████████| 3/3 [00:00<00:00, 3830.41it/s]
-
-100%|██████████| 3/3 [00:00<00:00, 20593.96it/s]
-
-100%|██████████| 3/3 [00:00<00:00, 20901.85it/s]
-100%|██████████| 3/3 [00:00<00:00, 285.69it/s][(0, (None, 1)), (0, (None, 4))]
-[(0, (None, 1)), (1, (None, 5))]
-[(0, (None, 1)), (2, (None, 6))]
-[(1, (None, 2)), (0, (None, 4))]
-[(1, (None, 2)), (1, (None, 5))]
-[(1, (None, 2)), (2, (None, 6))]
-[(2, (None, 3)), (0, (None, 4))]
-[(2, (None, 3)), (1, (None, 5))]
-[(2, (None, 3)), (2, (None, 6))]
 
 **RESULT:** The output of TQDM is hard to interpret. 
 NQDM seems to be more beginner-friendly for iterating over multiple arrays at the same time.
@@ -157,37 +111,10 @@ for i in tqdm(range(len(arg_2))):
     print([(i, (None, arg_1[i])), (j, (None, arg_2[i]))])
 ```
 
-NQDM:
+![NQDM_03](https://user-images.githubusercontent.com/46201716/116811247-9b834b00-ab48-11eb-927d-bc6d2ea60fcd.png)
 
-100%|██████████| 9/9 [00:00<00:00, 20460.02it/s]
+![TQDM_03](https://user-images.githubusercontent.com/46201716/116811250-a50cb300-ab48-11eb-8a40-3f114a9c6e18.png)
 
-[(0, (None, 'a')), (0, (None, 'c'))]
-[(1, (None, 'b')), (0, (None, 'c'))]
-[(2, (None, 'c')), (0, (None, 'c'))]
-[(0, (None, 'a')), (1, (None, 'd'))]
-[(1, (None, 'b')), (1, (None, 'd'))]
-[(2, (None, 'c')), (1, (None, 'd'))]
-[(0, (None, 'a')), (2, (None, 'e'))]
-[(1, (None, 'b')), (2, (None, 'e'))]
-[(2, (None, 'c')), (2, (None, 'e'))]
-
-TQDM:
-
-  0%|          | 0/3 [00:00<?, ?it/s]
-100%|██████████| 3/3 [00:00<00:00, 10356.31it/s]
-
-100%|██████████| 3/3 [00:00<00:00, 3929.70it/s]
-
-100%|██████████| 3/3 [00:00<00:00, 17073.15it/s]
-100%|██████████| 3/3 [00:00<00:00, 111.40it/s][(0, (None, 'a')), (0, (None, 'c'))]
-[(0, (None, 'a')), (1, (None, 'c'))]
-[(0, (None, 'a')), (2, (None, 'c'))]
-[(1, (None, 'b')), (0, (None, 'd'))]
-[(1, (None, 'b')), (1, (None, 'd'))]
-[(1, (None, 'b')), (2, (None, 'd'))]
-[(2, (None, 'c')), (0, (None, 'e'))]
-[(2, (None, 'c')), (1, (None, 'e'))]
-[(2, (None, 'c')), (2, (None, 'e'))]
 
 **RESULT:** NQDM has many important advantages. It is more readable 
 and has just one loop, and you don't really need to deal with converting string
@@ -218,29 +145,10 @@ for i in tqdm(range(len(arg_1))):
     ])
 ```
 
-NQDM:
+![NQDM_04](https://user-images.githubusercontent.com/46201716/116811259-b05fde80-ab48-11eb-8370-000017f70bf2.png)
 
-100%|██████████| 6/6 [00:00<00:00, 13789.49it/s]
+![TQDM_04](https://user-images.githubusercontent.com/46201716/116811260-b2c23880-ab48-11eb-8149-43bf92d7e214.png)
 
-[(0, ('key1', 4)), (0, (978, 'horse'))]
-[(1, ('key2', 5)), (0, (978, 'horse'))]
-[(0, ('key1', 4)), (1, (979, 'cat'))]
-[(1, ('key2', 5)), (1, (979, 'cat'))]
-[(0, ('key1', 4)), (2, (980, 'mouse'))]
-[(1, ('key2', 5)), (2, (980, 'mouse'))]
-
-TQDM:
-
- 0%|          | 0/2 [00:00<?, ?it/s]
-100%|██████████| 3/3 [00:00<00:00, 11066.77it/s]
-
-100%|██████████| 3/3 [00:00<00:00, 3534.53it/s]
-100%|██████████| 2/2 [00:00<00:00, 61.71it/s][(0, ('key1', 4)), (0, 978, 'horse')]
-[(0, ('key1', 4)), (1, 979, 'cat')]
-[(0, ('key1', 4)), (2, 980, 'mouse')]
-[(1, ('key2', 5)), (0, 978, 'horse')]
-[(1, ('key2', 5)), (1, 979, 'cat')]
-[(1, ('key2', 5)), (2, 980, 'mouse')]
 
 **RESULT:** NQDM seems to be better integrated for dicts and Pandas.Series.
 That means you may experience a boost in your data science projects switching from TQDM to NQDM!
@@ -270,54 +178,10 @@ for outer in tqdm(list_of_list_of_lists):
       print(inner)
 ```
 
-NQDM:
+![NQDM_05](https://user-images.githubusercontent.com/46201716/116811272-c4a3db80-ab48-11eb-912a-9c4322ff1ac2.png)
 
-0it [00:00, ?it/s]
-0it [00:00, ?it/s]
+![TQDM_05](https://user-images.githubusercontent.com/46201716/116811276-cf5e7080-ab48-11eb-8841-398d0045672b.png)
 
-100%|██████████| 1/1 [00:00<00:00, 1583.95it/s]
-100%|██████████| 1/1 [00:00<00:00, 48.68it/s]
-
-0it [00:00, ?it/s]
-
-100%|██████████| 1/1 [00:00<00:00, 6797.90it/s]
-100%|██████████| 1/1 [00:00<00:00, 131.54it/s]
-100%|██████████| 2/2 [00:00<00:00, 48.77it/s]
-
-
-
-[(0, (None, (0, (None, (0, (None, [[0, 1], [2, 3]]))))))]
-
-
-[(0, (None, (0, (None, (1, (None, [[4, 5], [6, 7]]))))))]
-
-
-TQDM:
-
-0%|          | 0/2 [00:00<?, ?it/s]
-  0%|          | 0/2 [00:00<?, ?it/s]
-
-100%|██████████| 2/2 [00:00<00:00, 10866.07it/s]
-
-
-100%|██████████| 2/2 [00:00<00:00, 12175.05it/s]
-100%|██████████| 2/2 [00:00<00:00, 426.66it/s]
-
-  0%|          | 0/2 [00:00<?, ?it/s]
-
-100%|██████████| 2/2 [00:00<00:00, 17886.16it/s]
-
-
-100%|██████████| 2/2 [00:00<00:00, 16844.59it/s]
-100%|██████████| 2/2 [00:00<00:00, 214.28it/s]
-100%|██████████| 2/2 [00:00<00:00, 56.65it/s]0
-1
-2
-3
-4
-5
-6
-7
 
 **RESULT:** NQDM is having trouble converting any outer NQDM loop's output to input.
 It is better using TQDM in the case of multi-level lists for now. It is still an open issue and 
