@@ -178,9 +178,9 @@ NQDM:
 ```
 list_of_list_of_lists = [[[0, 1], [2, 3]], [[4, 5], [6, 7]]]
 for outer in nqdm(list_of_list_of_lists):
-  for middle in nqdm(outer):
-    for inner in nqdm(middle):
-      print(inner)
+  for middle in nqdm(outer[0]):
+    for inner in nqdm(middle[0]):
+      print(inner[0])
 ```
 
 TQDM:
@@ -188,9 +188,9 @@ TQDM:
 ```
 list_of_list_of_lists = [[[0, 1], [2, 3]], [[4, 5], [6, 7]]]
 for outer in tqdm(list_of_list_of_lists):
-  for middle in tqdm(outer[0]):
-    for inner in tqdm(middle[0]):
-      print(inner[0])
+  for middle in tqdm(outer):
+    for inner in tqdm(middle):
+      print(inner)
 ```
 
 NQDM:
