@@ -202,6 +202,6 @@ class nqdm(tqdm.tqdm):
             point = point//leng
 
         # reduce dimension if just one element
-        informations = informations[0] if len(informations) == 1 else informations
+        elems = informations[0] if len(informations) == 1 else informations
 
-        return informations
+        return elems
