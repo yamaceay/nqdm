@@ -29,6 +29,23 @@ Let's explore some use cases of nqdm:
 
 ### Working With Different Data Types
 
+There are three types of arguments: 
+1. length: returns 0, ..., length-1
+2. array: returns array[0], ..., array[length-1]
+3. hashable: returns {keys[0]: values[0]}, ..., {keys[length-1]: values[length-1]}
+
+A more detailled list of available arguments and return values:
+
+| Argument | Type of Argument          | Returns                                                   |
+|----------|---------------------------|-----------------------------------------------------------|
+| length   | int                       | range(length)                                             |
+| length   | float                     | range(int(length))                                        |
+| array    | numpy.ndarray             | list(array)                                               |
+| array    | list                      | array                                                     |
+| array    | str                       | list(array)                                               |
+| hashable | pandas.core.series.Series | [{k: v} for k, v in zip(hashable.index, hashable.values)] |
+| hashable | dict                      | [{k: v} for k, v in hashable.items()]                     |
+
 **Length variables (int, float)**
 
 Input:
