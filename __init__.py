@@ -2,6 +2,15 @@ import numpy as np
 import pandas as pd
 import tqdm 
 
+"""from . import indextools
+from . import doctools
+
+__all__ = [
+    'indextools',
+    'doctools'
+]
+"""
+
 class nqdm(tqdm.tqdm):
     """
     NQDM progress bar
@@ -191,4 +200,8 @@ class nqdm(tqdm.tqdm):
 
             # continue with new arguments
             point = point//leng
+
+        # reduce dimension if just one element
+        informations = informations[0] if len(informations) == 1 else informations
+
         return informations

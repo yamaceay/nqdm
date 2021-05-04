@@ -1,0 +1,8 @@
+nqdm.egg-info
+dist
+build
+setup.py
+.github
+UNKNOWN.egg-info
+MANIFEST.in
+.eggs
