@@ -30,9 +30,9 @@ Let's explore some use cases of nqdm:
 ### Working With Different Data Types
 
 There are three types of arguments: 
-1. length: returns 0, ..., length-1
-2. array: returns array[0], ..., array[length-1]
-3. hashable: returns {keys[0]: values[0]}, ..., {keys[length-1]: values[length-1]}
+1. length: returns `0, ..., length-1`
+2. array: returns `array[0], ..., array[length-1]`
+3. hashable: returns `{keys[0]: values[0]}, ..., {keys[length-1]: values[length-1]}`
 
 A more detailled list of available arguments and return values:
 
