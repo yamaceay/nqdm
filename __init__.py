@@ -97,6 +97,7 @@ class nqdm(tqdm.tqdm):
          - pandas.Series() -> list of index, list of values
          - numpy.array() -> list of values
          - str -> list of characters
+         - range -> list of range object
          - dict -> list of keys and list of values
          - float -> int
          - list and int are unmodified 
@@ -107,6 +108,7 @@ class nqdm(tqdm.tqdm):
             "<class 'str'>": (lambda data: (None, list(data))),
             "<class 'dict'>": (lambda data: (list(data.keys()), list(data.values()))),
             "<class 'list'>": (lambda data: (None, data)),
+            "<class 'range'>": (lambda data: (None, list(data))),
             "<class 'int'>": (lambda data: (None, data)),
             "<class 'float'>": (lambda data: (None, int(data)))
         }
