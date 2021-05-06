@@ -41,6 +41,7 @@ A more detailled list of available arguments and return values:
 | length   | int                       | range(length)                                             |
 | length   | float                     | range(int(length))                                        |
 | array    | numpy.ndarray             | list(array)                                               |
+| array    | range                     | list(array)                                               |
 | array    | list                      | array                                                     |
 | array    | str                       | list(array)                                               |
 | hashable | pandas.core.series.Series | [{k: v} for k, v in zip(hashable.index, hashable.values)] |
