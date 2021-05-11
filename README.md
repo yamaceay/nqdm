@@ -1,6 +1,6 @@
 # NQDM
 
-![Logo](https://user-images.githubusercontent.com/46201716/116823016-4d8b3900-ab82-11eb-9661-ea9dc75d93e3.png)
+<img width="870" alt="logo1" src="https://user-images.githubusercontent.com/46201716/117867669-f2032e80-b298-11eb-89dc-9f57bd0affb5.png">
 
 A more generalised implementation to TQDM-progress bars, 
 which simulates a single loop for multiple loops and returns 
