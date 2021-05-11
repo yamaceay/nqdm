@@ -42,11 +42,12 @@ class nqdm(tqdm.tqdm):
         # NOTE: the parameters of tqdm have to be in keyword arguments format
         super().__init__(**kwargs)
 
-        self.depth = depth
+        if type(depth) == int:
+            depth = [depth for i in range(len(args))]
 
         # arguments are saved in self.arguments attribute
-        args = [self.__transformdeep__(arg, depth) for arg in args]
-        self.arguments = [self.__flatten__(arg) for arg in args]
+        args = [self.__transformdeep__(arg, depth_i) for arg, depth_i in zip(args, depth)]
+        self.arguments = [self.__flatten__(arg, depth_i) for arg, depth_i in zip(args, depth)]
 
         # self.total is set to the __limit__(*args) 
         # which returns the total number of expected iterations over all loops
@@ -228,7 +229,7 @@ class nqdm(tqdm.tqdm):
 
         return arg
 
-    def __flatten__(self, arg):
+    def __flatten__(self, arg, depth):
         """
         Very flexible function allowing to create an arbitrary 
         number of loops and flatten the given argument
@@ -238,6 +239,10 @@ class nqdm(tqdm.tqdm):
         arg
 
             Argument to be flattened
+
+        depth : int
+
+            Depth of argument
         
         Returns
         ----------
@@ -247,13 +252,13 @@ class nqdm(tqdm.tqdm):
         """
 
         # If depth is 0 or less, then flattening is not possible
-        if self.depth < 1:
+        if depth < 1:
             return arg
         
         # Dynamically create the code for iteration
         args = []
         command = "arg_ = arg.values() if type(arg) == dict else arg if hasattr(arg, '__len__') else []\nfor arg0 in arg_:\n"
-        for i in range(1, self.depth+1):
+        for i in range(1, depth+1):
             
             # If dict then iterate over values
             # If list then iterate over itself
