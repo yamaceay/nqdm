@@ -22,19 +22,19 @@ class nqdm(tqdm.tqdm):
     ----------
     total : int
 
-        total number of expected iterations over all loops
+        Total number of expected iterations over all loops
 
     iterable : range
 
-        range object storing indices ranging from 0 to total-1
+        Range object storing indices ranging from 0 to total-1
 
     arguments : list
 
-        list of iterable objects and single variables
+        List of iterable objects and single variables
 
     delay : int
 
-        total delay (is set to 0)
+        Total delay (is set to 0)
     """
     def __init__(self, *args, depth = 0, **kwargs):
 
@@ -117,7 +117,7 @@ class nqdm(tqdm.tqdm):
 
             Transformed argument
 
-        typ
+        typ : str
 
             Type of argument
         """
@@ -199,7 +199,7 @@ class nqdm(tqdm.tqdm):
 
             Argument to be transformed deeply
         
-        depth
+        depth : int
 
             Depth of transformation
         
