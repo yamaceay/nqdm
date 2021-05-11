@@ -42,6 +42,7 @@ class nqdm(tqdm.tqdm):
         # NOTE: the parameters of tqdm have to be in keyword arguments format
         super().__init__(**kwargs)
 
+        # if depth is an integer, then every depth is the same
         if type(depth) == int:
             depth = [depth for i in range(len(args))]
 
