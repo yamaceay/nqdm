@@ -317,13 +317,9 @@ class nqdm(tqdm.tqdm):
             if typ == "float":
                 data = int(data)
 
-            # if data is int or converted to int, then return range of number 
-            if type(data) == int:
-                leng = data
-                data = list(range(data))
-            else:
-                leng = len(data)
-
+            # calculate length
+            leng = data if type(data) == int else len(data):
+                
             # the index/offset of given argument
             offset = point%leng
 
