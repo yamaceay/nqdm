@@ -318,7 +318,7 @@ class nqdm(tqdm.tqdm):
                 data = int(data)
 
             # calculate length
-            leng = data if type(data) == int else len(data):
+            leng = data if type(data) == int else len(data)
                 
             # the index/offset of given argument
             offset = point%leng
