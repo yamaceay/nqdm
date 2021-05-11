@@ -113,23 +113,44 @@ Output:
 ![NQDM_04](https://user-images.githubusercontent.com/46201716/116821270-7fe46880-ab79-11eb-9727-875093e7d2c1.png)
 
 
-**3D-Lists:**
+**NEW: Usage of Depth Feature**
 
 Input:
 
 ```
 list_of_list_of_lists = [[[0, 1], [2, 3]], [[4, 5], [6, 7]]]
-for outer in nqdm(list_of_list_of_lists):
-  for middle in nqdm(outer):
-    for inner in nqdm(middle):
-      print(inner)
+for list_of_list in nqdm(list_of_list_of_lists, depth=0):
+  print(list_of_list)
 ```
 
 Output:
 
-![NQDM_05](https://user-images.githubusercontent.com/46201716/116821688-29782980-ab7b-11eb-9ca1-4f9ed816daba.png)
+![NQDM_05](https://user-images.githubusercontent.com/46201716/117814400-8bfcb400-b264-11eb-9dfc-7cfad4071a35.png)
 
 
+Input:
+
+```
+list_of_list_of_lists = np.arange(8).reshape(2, 2, 2)
+for arr in nqdm(list_of_list_of_lists, depth=1):
+  print(arr)
+```
+
+Output:
+
+![NQDM_06](https://user-images.githubusercontent.com/46201716/117814430-961eb280-b264-11eb-9efc-429c9e8ef89d.png)
+
+Input:
+
+```
+list_of_dict_of_lists = [{"a": [0, 1], "b": [2, 3]}, {"a": [4, 5], "b": [6, 7]}]
+for elem in nqdm(list_of_dict_of_lists, depth=2):
+  print(elem)
+```
+
+Output:
+
+![NQDM_07](https://user-images.githubusercontent.com/46201716/117814463-a0d94780-b264-11eb-8e67-c663e9b10f57.png)
 
 ## Built With
 
@@ -145,7 +166,15 @@ Output:
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
+## Collaborators
+
+* **Stanislav Kosorin** - [stano45](https://github.com/stano45) 
+
+Special Thanks to:
+
+* **Ori Toledo** - *Logo design* - [oritoledo](https://github.com/oritoledo)
+
 ## Acknowledgments
 
-* It's worth mentioning that this module is built on top of [TQDM](https://tqdm.github.io/),  I would like to
-* thank them for doing the real hard job and making this process of creating progress bars easy and flexible. 
+It's worth mentioning that this module is built on top of [TQDM](https://tqdm.github.io/),  I would like to
+thank them for doing the real hard job and making this process of creating progress bars easy and flexible. 
