@@ -152,6 +152,21 @@ Output:
 
 ![NQDM_07](https://user-images.githubusercontent.com/46201716/117814463-a0d94780-b264-11eb-8e67-c663e9b10f57.png)
 
+
+Input:
+
+```
+list_of_list_of_lists = np.arange(8).reshape(2, 2, 2)
+list_of_list_of_dicts = [[{"a": 1, "b": 2}, {"c": 3, "d": 4}], [{"e": 5, "f": 6}, {"g": 7, "h": 8}]]
+for elems in nqdm(list_of_list_of_lists, list_of_list_of_dicts, depth=[0, 1]):
+  print(elems)
+```
+
+Output:
+
+![NQDM_08](https://user-images.githubusercontent.com/46201716/117816662-0b8b8280-b267-11eb-8015-89a872044ca5.png)
+
+
 ## Built With
 
 * [tqdm](https://github.com/tqdm/tqdm) - The progress bar
