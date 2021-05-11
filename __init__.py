@@ -21,23 +21,36 @@ class nqdm(tqdm.tqdm):
     Attributes
     ----------
     total : int
+
         total number of expected iterations over all loops
+
     iterable : range
+
         range object storing indices ranging from 0 to total-1
+
     arguments : list
+
         list of iterable objects and single variables
+
     delay : int
+
         total delay (is set to 0)
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, depth = 0, **kwargs):
 
         # all features of tqdm are implemented
         # NOTE: the parameters of tqdm have to be in keyword arguments format
         super().__init__(**kwargs)
 
+        self.depth = depth
+
+        # arguments are saved in self.arguments attribute
+        args = [self.__transformdeep__(arg, depth) for arg in args]
+        self.arguments = [self.__flatten__(arg) for arg in args]
+
         # self.total is set to the __limit__(*args) 
         # which returns the total number of expected iterations over all loops
-        self.total = self.__limit__(*args)
+        self.total = self.__limit__()
 
         # self.iterable is the iterable data shown in the progress bar
         # in this case, it returns the range of all iterations 
@@ -45,9 +58,6 @@ class nqdm(tqdm.tqdm):
 
         # self.delay is set to 0
         self.delay = 0
-
-        # arguments are saved in self.arguments attribute
-        self.arguments = args
 
     def __iter__(self):
         """
@@ -91,38 +101,79 @@ class nqdm(tqdm.tqdm):
             self.n = n
             self.close()
 
-    def __transformate__(self):
+    def __transform__(self, y_i):
         """
-        Transformates the following data types into suitable input format:
-         - pandas.Series() -> list of index, list of values
-         - numpy.array() -> list of values
-         - str -> list of characters
-         - dict -> list of keys and list of values
-         - float -> int
-         - list and int are unmodified 
+        Converts the given object to its respective built-in equivalent
+
+        Parameters
+        ----------
+        y_i
+
+            Argument to transform
+        
+        Returns
+        ----------
+        arg
+
+            Transformed argument
+
+        typ
+
+            Type of argument
         """
-        return {
-            "<class 'pandas.core.series.Series'>": (lambda data: (list(data.index), list(data.values))),
-            "<class 'numpy.ndarray'>": (lambda data: (None, data.tolist())),
-            "<class 'str'>": (lambda data: (None, list(data))),
-            "<class 'dict'>": (lambda data: (list(data.keys()), list(data.values()))),
-            "<class 'list'>": (lambda data: (None, data)),
-            "<class 'int'>": (lambda data: (None, data)),
-            "<class 'float'>": (lambda data: (None, int(data)))
-        }
-    def __limit__(self, *args):
+
+        # Functions to extract features from given object
+        is_iterable = lambda y: True if y == range else any([x == "sort" for x in y.__dict__]) if hasattr(y, '__dict__') else False
+        is_hashable = lambda y: any([x in ["fromkeys", "items"] for x in y.__dict__]) if hasattr(y, '__dict__') else False
+        is_constant = lambda y: any([x == "as_integer_ratio" for x in y.__dict__]) if hasattr(y, '__dict__') else False
+        is_string = lambda y: y == str
+
+        # List of functions
+        functions = [is_iterable, is_hashable, is_constant, is_string]
+
+        # Iterate over functions and get results
+        y = [fn(type(y_i))*1 for fn in functions]
+
+        # No overlapping allowed due to the simplicity reasons
+        if sum(y) != 1:
+            return y_i, type(y_i)
+
+        # Convert to list
+        if np.argmax(y) == 0:
+            return list(y_i), "list" 
+        
+        # Conversion to dict
+        if np.argmax(y) == 1:
+            return dict(y_i), "dict"
+        
+        # Check if int or not given that it is a constant
+        if np.argmax(y) == 2:
+            if type(y_i) == int:
+                return y_i, "int"
+            else:
+                # Note: float here means it is not int
+                return y_i, "float"
+        
+        # Conversion of string to list
+        if np.argmax(y) == 3:
+            return list(y_i), "string"
+        
+    def __limit__(self):
+        args = self.arguments
         """
         Calculates the total number of iterations over every loops.
         
         Parameters
         ----------
         *args 
-            unpacked list of arguments of any iterable object type or int/float
+
+            Unpacked list of arguments of any iterable object type or int/float
         
         Returns
         ----------
         product : int
-            total number of iterations expected over all arguments
+
+            Total number of iterations expected over all arguments
         """
         product = 1
         for i in range(len(args)):
@@ -137,23 +188,114 @@ class nqdm(tqdm.tqdm):
             product *= leng
 
         return product
+
+    def __transformdeep__(self, arg, depth):
+        """
+        Transforms the deeper levels of argument if needed
+        
+        Parameters
+        ----------
+        arg
+
+            Argument to be transformed deeply
+        
+        depth
+
+            Depth of transformation
+        
+        Returns
+        ----------
+        arg
+
+            Transformed argument
+
+        """
+
+        # Initial transformation of data
+        arg, typ = self.__transform__(arg)
+
+        # If depth is 0 or less, than end the transformation
+        if depth < 1:
+            return arg
+
+        # If it is a dict, transform each value
+        if typ == "dict":
+            arg = {k: self.__transformdeep__(v, depth-1) for k,v in arg.items()}
+
+        # If it is a list, transform each element
+        if typ == "list":
+            arg = [self.__transformdeep__(v, depth-1) for v in arg]
+
+        return arg
+
+    def __flatten__(self, arg):
+        """
+        Very flexible function allowing to create an arbitrary 
+        number of loops and flatten the given argument
+
+        Parameters
+        ----------
+        arg
+
+            Argument to be flattened
+        
+        Returns
+        ----------
+        args
+
+            Flattened argument
+        """
+
+        # If depth is 0 or less, then flattening is not possible
+        if self.depth < 1:
+            return arg
+        
+        # Dynamically create the code for iteration
+        args = []
+        command = "arg_ = arg.values() if type(arg) == dict else arg if hasattr(arg, '__len__') else []\nfor arg0 in arg_:\n"
+        for i in range(1, self.depth+1):
             
+            # If dict then iterate over values
+            # If list then iterate over itself
+            # If constant then don't iterate
+            command += "  "*(2*i-1) + f"arg_{i-1} = arg{i-1}.values() if type(arg{i-1}) == dict else arg{i-1} if hasattr(arg{i-1}, '__len__') else []\n"
+            
+            # If constant, then save data directly
+            command += "  "*(2*i-1) + f"if not len(arg_{i-1}):\n"
+            command += "  "*(2*i) + f"args.append(arg{i-1})\n"
+
+            # Otherwise iterate further
+            command += "  "*(2*i-1) + f"else:\n"
+            command += "  "*(2*i) + f"for arg{i} in arg_{i-1}:\n"
+        
+        # Append each item flatly
+        command += "  "*(2*i+1) + f"args.append(arg{i})\n"
+
+        # Execute the command
+        exec(command)
+        return args
+
     def __ndrate__(self, point, *args):
         """
         Finds out the offsets of each argument and saves the current element if needed
         
         Parameters
         ----------
-        point: int
-            the current offset of the main progress bar
-        *args: list
-            unpacked list of arguments containing iterable objects or int/float variables
+        point : int
+
+            The current offset of the main progress bar
+
+        *args : list
+
+            Unpacked list of arguments containing iterable objects or int/float variables
         
         Returns
         ----------
-        informations: list
-            contains current offset of each arguments 
+        informations : list
+            
+            Contains current offset of each arguments 
             (and if given: their corresponding key-value pairs)
+
         """
 
         # informations list to be returned
@@ -163,43 +305,34 @@ class nqdm(tqdm.tqdm):
             arg = args[i]
 
             # the following operations depends on the type of argument
-            typ = type(arg)
+            data, typ = self.__transform__(arg)
 
-            # the respective transformating function is selected
-            tr_func = self.__transformate__()[str(typ)]
+            # if data is float then convert it to int
+            if typ == "float":
+                data = int(data)
 
-            # the content is extracted to a more useful format
-            # as keys and values
-            keys, vals = tr_func(arg)
-
-            # checks if the argument has a key or not
-            is_key = keys is not None
-
-            # checks if the argument is an iterable object or not
-            is_iterable = hasattr(vals, "__len__")
-
-            # if the argument an iterable object, then save its length
-            # otherwise it is already a length variable
-            leng = len(vals) if is_iterable else vals
+            # if data is int or converted to int, then return range of number 
+            if type(data) == int:
+                leng = data
+                data = list(range(data))
+            else:
+                leng = len(data)
 
             # the index/offset of given argument
             offset = point%leng
 
-            # keys and values are saved 
-            key = keys[offset] if is_key else None
-            val = vals[offset] if is_iterable else None
-
-            # store variables as either dict item or list value or offset
-            if is_key:
-                data = {key: val}
-            elif is_iterable:
-                data = val
-            else:
-                data = offset
-            informations.append(data)
-
             # continue with new arguments
             point = point//leng
+
+            # store variables as either dict item or list value or offset
+            if typ == "dict":
+                data = {list(data.keys())[offset]: list(data.values())[offset]}
+            elif typ == "list":
+                data = data[offset]
+            else:
+                data = offset
+            
+            informations.append(data)
 
         # reduce dimension if just one element
         elems = informations[0] if len(informations) == 1 else informations
