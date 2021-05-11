@@ -29,9 +29,27 @@ Let's explore some use cases of nqdm:
 
 ### Working With Different Data Types
 
+There are three types of arguments: 
+1. length: returns `0, ..., length-1`
+2. array: returns `array[0], ..., array[length-1]`
+3. hashable: returns `{keys[0]: values[0]}, ..., {keys[length-1]: values[length-1]}`
+
+A more detailled list of available arguments and return values:
+
+| Argument | Type of Argument          | Returns                                                   |
+|----------|---------------------------|-----------------------------------------------------------|
+| length   | int                       | range(length)                                             |
+| length   | float                     | range(int(length))                                        |
+| array    | numpy.ndarray             | list(array)                                               |
+| array    | range                     | list(array)                                               |
+| array    | list                      | array                                                     |
+| array    | str                       | list(array)                                               |
+| hashable | pandas.core.series.Series | [{k: v} for k, v in zip(hashable.index, hashable.values)] |
+| hashable | dict                      | [{k: v} for k, v in hashable.items()]                     |
+
 **Length variables (int, float)**
 
-NQDM:
+Input:
 
 ```
 len_1 = 2.0 
@@ -40,32 +58,14 @@ len_2 = 3
 for i in nqdm(len_1, len_2):
   print(i)
 ```
-TQDM:
 
-```
-len_1 = 2.0 
-len_2 = 3
-
-for i in tqdm(range(int(len_1))):
-  for j in tqdm(range(len_2)):
-    print([i, j])
-```
-NQDM:
+Output:
 
 ![NQDM_01](https://user-images.githubusercontent.com/46201716/116820687-87564280-ab76-11eb-9bcb-138aaba6e434.png)
 
-TQDM:
-
-![TQDM_01](https://user-images.githubusercontent.com/46201716/116820698-91784100-ab76-11eb-8a3b-a06c20a3585e.png)
-
-
-**RESULT:** As it is clear, NQDM is more readable, has a 
-better output format, reducing the dimensionality by 1 and is simpler. 
-
-
 **Lists and NumPy arrays**
 
-NQDM:
+Input:
 
 ```
 arg_1 = [1, 2, 3]
@@ -75,33 +75,14 @@ for i in nqdm(arg_1, arg_2):
   print(i)
 ```
 
-TQDM:
-
-```
-arg_1 = [1, 2, 3]
-arg_2 = np.array([4, 5, 6])
-
-for i in tqdm(range(len(arg_1))):
-  for j in tqdm(arg_2):
-    print([arg_1[i], j)
-```
-
-NQDM:
+Output:
 
 ![NQDM_02](https://user-images.githubusercontent.com/46201716/116820837-5591ab80-ab77-11eb-9954-f9f9d60d24c9.png)
 
-TQDM:
-
-![TQDM_02](https://user-images.githubusercontent.com/46201716/116820849-68a47b80-ab77-11eb-80a5-27757a1ad5a9.png)
-
-
-
-**RESULT:** The output of TQDM is slightly harder to interpret. NQDM seems to be 
-more beginner-friendly for iterating over multiple arrays at the same time.
 
 **Strings**
 
-NQDM:
+Input:
 
 ```
 arg_1 = list("abc")
@@ -111,33 +92,14 @@ for i in nqdm(arg_1, arg_2):
   print(i)
 ```
 
-TQDM:
-
-```
-arg_1 = list("abc")
-arg_2 = "cde"
-
-for i in tqdm(arg_1):
-  for j in tqdm(range(len(arg_2))):
-    print([i, arg_2[j]])
-```
-
-NQDM:
+Output:
 
 ![NQDM_03](https://user-images.githubusercontent.com/46201716/116821097-c6859300-ab78-11eb-95e9-0a7ec46a4631.png)
 
-TQDM:
-
-![TQDM_03](https://user-images.githubusercontent.com/46201716/116823383-7e6c6d80-ab84-11eb-84c5-1fd65b659ae4.png)
-
-
-**RESULT:** NQDM has many important advantages. It is more readable 
-and has just one loop, and you don't really need to deal with converting string
-into character array.
 
 **Dictionaries and Pandas Series**
 
-NQDM:
+Input:
 
 ```
 arg_1 = {"key1": 4, "key2": 5}
@@ -146,65 +108,28 @@ arg_2 = pd.Series(["horse", "cat", "mouse"], index=[978, 979, 980])
 for i in nqdm(arg_1, arg_2):
   print(i)
 ```
-
-TQDM: 
-
-```
-arg_1 = {"key1": 4, "key2": 5}
-arg_2 = pd.Series(["horse", "cat", "mouse"], index=[978, 979, 980])
-
-for i in tqdm(range(len(arg_1))):
-  for j in tqdm(range(len(arg_2))):
-    print([list(arg_1.items())[i], {arg_2.index[j]: arg_2.values[j]}])
-```
-
-NQDM:
+Output:
 
 ![NQDM_04](https://user-images.githubusercontent.com/46201716/116821270-7fe46880-ab79-11eb-9727-875093e7d2c1.png)
 
-TQDM:
-
-![TQDM_04](https://user-images.githubusercontent.com/46201716/116823409-a8259480-ab84-11eb-8b0b-d52365dfc0d5.png)
-
-
-
-**RESULT:** NQDM seems to be better integrated for dicts and Pandas.Series.
-That means you may experience a boost in your data science projects switching from TQDM to NQDM.
 
 **3D-Lists:**
 
-NQDM:
+Input:
 
 ```
 list_of_list_of_lists = [[[0, 1], [2, 3]], [[4, 5], [6, 7]]]
 for outer in nqdm(list_of_list_of_lists):
-  for middle in nqdm(outer[0]):
-    for inner in nqdm(middle[0]):
-      print(inner[0])
-```
-
-TQDM:
-
-```
-list_of_list_of_lists = [[[0, 1], [2, 3]], [[4, 5], [6, 7]]]
-for outer in tqdm(list_of_list_of_lists):
-  for middle in tqdm(outer):
-    for inner in tqdm(middle):
+  for middle in nqdm(outer):
+    for inner in nqdm(middle):
       print(inner)
 ```
 
-NQDM:
+Output:
 
 ![NQDM_05](https://user-images.githubusercontent.com/46201716/116821688-29782980-ab7b-11eb-9ca1-4f9ed816daba.png)
 
-TQDM:
 
-![TQDM_05](https://user-images.githubusercontent.com/46201716/116821692-2da44700-ab7b-11eb-84a4-9782ee9312af.png)
-
-
-**RESULT:** They both have inconsistencies about unfinished progress bars and
-newline openings. It is open for discussion, which one would outperform in many
-more levels, but still NQDM might be better implemented because of multi-indexing capability.
 
 ## Built With
 
