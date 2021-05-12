@@ -109,10 +109,12 @@ class nqdm(tqdm.tqdm):
             sorted_values = data[::-1]
 
         # if any arbitrary order, then reorder accordingly
-        indices = list(range(len(data)))
-        mapper = {order_i: data[index_i] for order_i, index_i in zip(self.order, indices)}
-        sorted_mapper = {key: mapper[key] for key in sorted(mapper.keys())}
-        sorted_values = list(sorted_mapper.values())
+        else:
+            indices = list(range(len(data)))
+            mapper = {order_i: data[index_i] for order_i, index_i in zip(self.order, indices)}
+            sorted_mapper = {key: mapper[key] for key in sorted(mapper.keys())}
+            sorted_values = list(sorted_mapper.values())
+        
         return sorted_values
 
     def __oldorder__(self, data):
@@ -126,7 +128,8 @@ class nqdm(tqdm.tqdm):
             old_data = data[::-1]
 
         # if any arbitrary order, reorder to the old structure
-        old_data = [data[order_i] for order_i in self.order]
+        else:
+            old_data = [data[order_i] for order_i in self.order]
         return old_data
     
     def __iter__(self):
