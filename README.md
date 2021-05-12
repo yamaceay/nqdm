@@ -166,6 +166,43 @@ Output:
 
 ![NQDM_08](https://user-images.githubusercontent.com/46201716/117816662-0b8b8280-b267-11eb-8015-89a872044ca5.png)
 
+**NEW: Usage of Order Feature**
+
+Input:
+
+```
+for i in nqdm(2, 2, 2, order = "first"):
+    print(i)
+```
+
+Output:
+
+![NQDM_9](https://user-images.githubusercontent.com/46201716/118056744-bfd1f980-b38a-11eb-8284-02aee6a1dbfb.png)
+
+
+Input:
+
+```
+for i in nqdm(2, 2, 2, order = "last"):
+    print(i)
+```
+
+Output:
+
+![NQDM_10)](https://user-images.githubusercontent.com/46201716/118056798-dc6e3180-b38a-11eb-9924-600d80631b16.png)
+
+
+Input:
+
+```
+for i in nqdm(2, 2, 2, order = [1, 2, 0]):
+    print(i)
+```
+
+Output:
+
+![NQDM_11](https://user-images.githubusercontent.com/46201716/118056822-e6903000-b38a-11eb-936d-55196bd60235.png)
+
 
 ## Built With
 
@@ -181,12 +218,9 @@ Output:
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
-## Collaborators
+## Special Thanks to:
 
 * **Stanislav Kosorin** - [stano45](https://github.com/stano45) 
-
-Special Thanks to:
-
 * **Ori Toledo** - *Logo design* - [oritoledo](https://github.com/oritoledo)
 
 ## Acknowledgments
