@@ -32,19 +32,41 @@ class nqdm(tqdm.tqdm):
 
         List of iterable objects and single variables
 
+    depth : int | list
+
+        How many dimensions deep it will be iterated 
+
+    order : str | list
+
+        Order defining the hierarchy of nested loops
+
     delay : int
 
         Total delay (is set to 0)
     """
-    def __init__(self, *args, depth = 0, **kwargs):
+    def __init__(self, *args, depth = 0, order = "first", **kwargs):
 
         # all features of tqdm are implemented
         # NOTE: the parameters of tqdm have to be in keyword arguments format
         super().__init__(**kwargs)
 
         # if depth is an integer, then every depth is the same
+        # if depth has an inconsistent length, then set depth to 0
+        if type(depth) == list:
+            if len(depth) != len(args):
+                depth = 0
+
         if type(depth) == int:
             depth = [depth for i in range(len(args))]
+
+        self.depth = depth
+
+        # if order has an inconsistent length, then set order to first
+        if type(order) == list:
+            if len(order) != len(args):
+                order = "first"
+            
+        self.order = order
 
         # arguments are saved in self.arguments attribute
         args = [self.__transformdeep__(arg, depth_i) for arg, depth_i in zip(args, depth)]
@@ -61,6 +83,52 @@ class nqdm(tqdm.tqdm):
         # self.delay is set to 0
         self.delay = 0
 
+    def __neworder__(self, data):
+        """
+        Reorders the arguments
+
+        Parameters
+        ----------
+        data : list
+
+            List of arguments to be reordered
+
+        Returns
+        ----------
+        sorted_values : list
+
+            Reordered list of arguments
+        """
+
+        # if first, then do not change anything
+        if self.order == "first":
+            sorted_values = data
+        
+        # if last, then reverse it
+        elif self.order == "last":
+            sorted_values = data[::-1]
+
+        # if any arbitrary order, then reorder accordingly
+        indices = list(range(len(data)))
+        mapper = {order_i: data[index_i] for order_i, index_i in zip(self.order, indices)}
+        sorted_mapper = {key: mapper[key] for key in sorted(mapper.keys())}
+        sorted_values = list(sorted_mapper.values())
+        return sorted_values
+
+    def __oldorder__(self, data):
+
+        # if first, do not change anything
+        if self.order == "first":
+            old_data = data
+        
+        # if last, reverse it
+        elif self.order == "last":
+            old_data = data[::-1]
+
+        # if any arbitrary order, reorder to the old structure
+        old_data = [data[order_i] for order_i in self.order]
+        return old_data
+    
     def __iter__(self):
         """
         Built-in iter function. Some parts of the 
@@ -74,7 +142,11 @@ class nqdm(tqdm.tqdm):
             for ind in iterable:
 
                 # returns an informations list (see __ndrate__())
-                obj = self.__ndrate__(ind, *self.arguments)
+                obj = self.__getelems__(ind, *self.arguments)
+                if type(self.order) == list:
+                    obj = __oldorder__(obj)
+                elif self.order == "last":
+                    obj = obj[::-1]
                 yield obj
             return
         mininterval = self.mininterval
@@ -89,7 +161,7 @@ class nqdm(tqdm.tqdm):
             print("\n")
             for ind in iterable:
                 # returns an informations list (see __ndrate__())
-                obj = self.__ndrate__(ind, *self.arguments)
+                obj = self.__getelems__(ind, *self.arguments)
                 yield obj
                 n += 1
                 if n - last_print_n >= self.miniters:
@@ -281,7 +353,7 @@ class nqdm(tqdm.tqdm):
         exec(command)
         return args
 
-    def __ndrate__(self, point, *args):
+    def __getelems__(self, point, *args):
         """
         Finds out the offsets of each argument and saves the current element if needed
         
@@ -307,7 +379,15 @@ class nqdm(tqdm.tqdm):
         # informations list to be returned
         informations = []
 
+        # other datas
+        offsets = []
+        datas = []
+        types = []
+
+        args = self.__neworder__(args)
+
         for i in range(len(args)):
+
             arg = args[i]
 
             # the following operations depends on the type of argument
@@ -319,12 +399,24 @@ class nqdm(tqdm.tqdm):
 
             # calculate length
             leng = data if type(data) == int else len(data)
-                
+
             # the index/offset of given argument
             offset = point%leng
 
             # continue with new arguments
             point = point//leng
+        
+            # add indices
+            offsets.append(offset)
+            datas.append(data)
+            types.append(typ)
+        
+        for i in range(len(args)):
+
+            # get current index
+            offset = offsets[i]
+            data = datas[i]
+            typ = types[i]
 
             # store variables as either dict item or list value or offset
             if typ == "dict":
@@ -337,6 +429,6 @@ class nqdm(tqdm.tqdm):
             informations.append(data)
 
         # reduce dimension if just one element
-        elems = informations[0] if len(informations) == 1 else informations
+        elems = informations[0] if len(informations) == 1 else self.__oldorder__(informations)
 
         return elems
