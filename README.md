@@ -177,7 +177,7 @@ for i in nqdm(2, 2, 2, order = "first"):
 
 Output:
 
-![NQDM_9](https://user-images.githubusercontent.com/46201716/118056744-bfd1f980-b38a-11eb-8284-02aee6a1dbfb.png)
+![NQDM_9)](https://user-images.githubusercontent.com/46201716/118056798-dc6e3180-b38a-11eb-9924-600d80631b16.png)
 
 
 Input:
@@ -189,7 +189,7 @@ for i in nqdm(2, 2, 2, order = "last"):
 
 Output:
 
-![NQDM_10)](https://user-images.githubusercontent.com/46201716/118056798-dc6e3180-b38a-11eb-9924-600d80631b16.png)
+![NQDM_10](https://user-images.githubusercontent.com/46201716/118056822-e6903000-b38a-11eb-936d-55196bd60235.png)
 
 
 Input:
@@ -201,7 +201,7 @@ for i in nqdm(2, 2, 2, order = [1, 2, 0]):
 
 Output:
 
-![NQDM_11](https://user-images.githubusercontent.com/46201716/118056822-e6903000-b38a-11eb-936d-55196bd60235.png)
+![NQDM_11](https://user-images.githubusercontent.com/46201716/118056744-bfd1f980-b38a-11eb-8284-02aee6a1dbfb.png)
 
 
 ## Built With
