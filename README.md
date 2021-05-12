@@ -171,7 +171,7 @@ Output:
 Input:
 
 ```
-for i in nqdm(2, 2, 2, order = "first"):
+for i in nqdm(2, 2, 2, order = "last"):
     print(i)
 ```
 
@@ -183,7 +183,7 @@ Output:
 Input:
 
 ```
-for i in nqdm(2, 2, 2, order = "last"):
+for i in nqdm(2, 2, 2, order = "first"):
     print(i)
 ```
 
