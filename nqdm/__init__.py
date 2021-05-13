@@ -2,22 +2,12 @@ import numpy as np
 import pandas as pd
 import tqdm 
 
-"""from . import indextools
-from . import doctools
-
-__all__ = [
-    'indextools',
-    'doctools'
-]
-"""
-
 class nqdm(tqdm.tqdm):
     """
     NQDM progress bar
      - Compresses nested loops into a single loop 
      - Can work with different types of data
      - Is implemented by TQDM 
-
     Attributes
     ----------
     total : int
@@ -25,23 +15,23 @@ class nqdm(tqdm.tqdm):
         Total number of expected iterations over all loops
 
     iterable : range
-
+        
         Range object storing indices ranging from 0 to total-1
-
+    
     arguments : list
-
+        
         List of iterable objects and single variables
-
+    
     depth : int | list
-
+        
         How many dimensions deep it will be iterated 
-
+    
     order : str | list
-
+        
         Order defining the hierarchy of nested loops
-
+    
     delay : int
-
+        
         Total delay (is set to 0)
     """
     def __init__(self, *args, depth = 0, order = "first", **kwargs):
@@ -86,17 +76,13 @@ class nqdm(tqdm.tqdm):
     def __neworder__(self, data):
         """
         Reorders the arguments
-
         Parameters
         ----------
         data : list
-
             List of arguments to be reordered
-
         Returns
         ----------
         sorted_values : list
-
             Reordered list of arguments
         """
 
@@ -181,21 +167,16 @@ class nqdm(tqdm.tqdm):
     def __transform__(self, y_i):
         """
         Converts the given object to its respective built-in equivalent
-
         Parameters
         ----------
         y_i
-
             Argument to transform
         
         Returns
         ----------
         arg
-
             Transformed argument
-
         typ : str
-
             Type of argument
         """
 
@@ -243,13 +224,11 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         *args 
-
             Unpacked list of arguments of any iterable object type or int/float
         
         Returns
         ----------
         product : int
-
             Total number of iterations expected over all arguments
         """
         product = 1
@@ -273,19 +252,15 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         arg
-
             Argument to be transformed deeply
         
         depth : int
-
             Depth of transformation
         
         Returns
         ----------
         arg
-
             Transformed argument
-
         """
 
         # Initial transformation of data
@@ -309,21 +284,16 @@ class nqdm(tqdm.tqdm):
         """
         Very flexible function allowing to create an arbitrary 
         number of loops and flatten the given argument
-
         Parameters
         ----------
         arg
-
             Argument to be flattened
-
         depth : int
-
             Depth of argument
         
         Returns
         ----------
         args
-
             Flattened argument
         """
 
@@ -363,11 +333,8 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         point : int
-
             The current offset of the main progress bar
-
         *args : list
-
             Unpacked list of arguments containing iterable objects or int/float variables
         
         Returns
@@ -376,7 +343,6 @@ class nqdm(tqdm.tqdm):
             
             Contains current offset of each arguments 
             (and if given: their corresponding key-value pairs)
-
         """
 
         # informations list to be returned
