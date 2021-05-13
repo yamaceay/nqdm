@@ -8,7 +8,7 @@ setup(
     author = 'Yamac Eren Ay',
     author_email = 'yamacerenay2001@gmail.com',
     url = 'https://github.com/yamaceay/nqdm',
-    download_url = "https://github.com/yamaceay/nqdm/archive/refs/tags/v0.1.1.tar.gz",
+    download_url = "https://github.com/yamaceay/nqdm/archive/refs/tags/v0.1.0.tar.gz",
     keywords = ['nqdm', 'NQDM', "progress bar", "tqdm"],
     classifiers = [],
 )
