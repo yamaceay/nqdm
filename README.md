@@ -2,6 +2,8 @@
 
 <img width="390" alt="logo1" src="https://user-images.githubusercontent.com/46201716/117867669-f2032e80-b298-11eb-89dc-9f57bd0affb5.png">
 
+[Medium Article](https://yamaceay.medium.com/nqdm-modern-progress-bar-13a898a8f411)
+
 A more generalised implementation to TQDM-progress bars, 
 which simulates a single loop for multiple loops and returns 
 multiple indices at the same time. It is compatible with many data types, 
