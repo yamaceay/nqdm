@@ -206,6 +206,22 @@ Output:
 ![NQDM_11](https://user-images.githubusercontent.com/46201716/118056744-bfd1f980-b38a-11eb-8284-02aee6a1dbfb.png)
 
 
+**NEW: Usage of Enum Feature**
+
+
+Input:
+```
+data = pd.DataFrame({"x1": [2, 3, 5], "x2": [9, 8, 2], "x3": [0, 0, 2]})
+
+for i in nqdm(data, enum=True):
+    print(i)
+```
+
+Output:
+
+
+
+
 ## Built With
 
 * [tqdm](https://github.com/tqdm/tqdm) - The progress bar
