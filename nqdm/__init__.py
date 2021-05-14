@@ -22,19 +22,23 @@ class nqdm(tqdm.tqdm):
         
         List of iterable objects and single variables
     
-    depth : int | list
+    depth : int | list = 0
         
         How many dimensions deep it will be iterated 
     
-    order : str | list
+    order : str | list = "first"
         
         Order defining the hierarchy of nested loops
     
-    delay : int
+    delay : int = 0
         
-        Total delay (is set to 0)
+        Total delay
+
+    enum : bool = False
+
+        Whether data is enumerated or not
     """
-    def __init__(self, *args, depth = 0, order = "first", **kwargs):
+    def __init__(self, *args, depth = 0, order = "first", enum = False, **kwargs):
 
         # all features of tqdm are implemented
         # NOTE: the parameters of tqdm have to be in keyword arguments format
@@ -57,6 +61,8 @@ class nqdm(tqdm.tqdm):
                 order = "first"
             
         self.order = order
+
+        self.enum = enum
 
         # arguments are saved in self.arguments attribute
         args = [self.__transformdeep__(arg, depth_i) for arg, depth_i in zip(args, depth)]
@@ -105,7 +111,7 @@ class nqdm(tqdm.tqdm):
             sorted_values = list(sorted_mapper.values())
         
         return sorted_values
-
+    
     def __oldorder__(self, data):
 
         # if first, do not change anything
@@ -121,6 +127,7 @@ class nqdm(tqdm.tqdm):
             old_data = [data[order_i] for order_i in self.order]
         return old_data
     
+
     def __iter__(self):
         """
         Built-in iter function. Some parts of the 
@@ -133,12 +140,13 @@ class nqdm(tqdm.tqdm):
             print("\n")
             for ind in iterable:
 
-                # returns an informations list (see __ndrate__())
+                # returns an informations list (see __getelems__())
                 obj = self.__getelems__(ind, *self.arguments)
-                if type(self.order) == list:
-                    obj = __oldorder__(obj)
-                elif self.order == "last":
-                    obj = obj[::-1]
+
+                # if data needs to be enumerated, then add index
+                if self.enum:
+                    obj = (ind, obj)
+                    
                 yield obj
             return
         mininterval = self.mininterval
@@ -152,8 +160,13 @@ class nqdm(tqdm.tqdm):
         try:
             print("\n")
             for ind in iterable:
-                # returns an informations list (see __ndrate__())
+                # returns an informations list (see __getelems__())
                 obj = self.__getelems__(ind, *self.arguments)
+
+                # if data is to be enumerated, then add index
+                if self.enum:
+                    obj = (ind, obj)
+
                 yield obj
                 n += 1
                 if n - last_print_n >= self.miniters:

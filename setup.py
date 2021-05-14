@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="nqdm",
-    version="0.1.2",
+    version="0.1.3",
     author="Yamac Eren Ay",
     author_email="yamacerenay2001@gmail.com",
     description="NQDM -- An extension of TQDM which enables you to loop over multiple objects simultaneously, and specify the depth of iteration for each object. It is just pure Python magic, no extra libraries needed. It is customizable, minimal and open source.",
