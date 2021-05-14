@@ -1,6 +1,4 @@
-nqdm.egg-info
-dist
+.github
 build
-UNKNOWN.egg-info
-MANIFEST.in
-.eggs
+dist
+nqdm.egg-info
