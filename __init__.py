@@ -79,10 +79,13 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         data : list
+
             List of arguments to be reordered
+        
         Returns
         ----------
         sorted_values : list
+        
             Reordered list of arguments
         """
 
@@ -170,13 +173,17 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         y_i
+        
             Argument to transform
         
         Returns
         ----------
         arg
+        
             Transformed argument
+        
         typ : str
+        
             Type of argument
         """
 
@@ -224,11 +231,13 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         *args 
+        
             Unpacked list of arguments of any iterable object type or int/float
         
         Returns
         ----------
         product : int
+        
             Total number of iterations expected over all arguments
         """
         product = 1
@@ -252,14 +261,17 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         arg
+        
             Argument to be transformed deeply
         
         depth : int
+        
             Depth of transformation
         
         Returns
         ----------
         arg
+        
             Transformed argument
         """
 
@@ -287,13 +299,17 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         arg
+        
             Argument to be flattened
+        
         depth : int
+        
             Depth of argument
         
         Returns
         ----------
         args
+        
             Flattened argument
         """
 
@@ -333,8 +349,11 @@ class nqdm(tqdm.tqdm):
         Parameters
         ----------
         point : int
+        
             The current offset of the main progress bar
+        
         *args : list
+        
             Unpacked list of arguments containing iterable objects or int/float variables
         
         Returns
