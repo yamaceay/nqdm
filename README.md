@@ -213,12 +213,13 @@ Input:
 ```
 data = pd.DataFrame({"x1": [2, 3, 5], "x2": [9, 8, 2], "x3": [0, 0, 2]})
 
-for i in nqdm(data, enum=True):
+for i in nqdm(data, enum=True, depth=1):
     print(i)
 ```
 
 Output:
 
+![NQDM_12](https://user-images.githubusercontent.com/46201716/118331627-1ebd7d00-b509-11eb-93a3-81ce1d09e59c.png)
 
 
 
