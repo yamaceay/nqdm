@@ -2,22 +2,19 @@
 
 <img width="390" alt="logo1" src="https://user-images.githubusercontent.com/46201716/117867669-f2032e80-b298-11eb-89dc-9f57bd0affb5.png">
 
-[Medium Article](https://yamaceay.medium.com/nqdm-modern-progress-bar-13a898a8f411)
+[A Gentle Introduction](https://yamaceay.medium.com/nqdm-modern-progress-bar-13a898a8f411)
 
 A more generalised implementation to TQDM-progress bars, 
 which simulates a single loop for multiple loops and returns 
-multiple indices at the same time. It is compatible with many data types, 
+multiple elements at the same time. It can iterate over the deeper levels. It is compatible with many data types, 
 is customizable and beginner-friendly.
 
 ### Installing
 
 Install it using the terminal
+
 ```
-git clone https://github.com/yamaceay/nqdm.git
-```
-or install it on a .ipynb notebook.
-```
-!git clone https://github.com/yamaceay/nqdm.git
+pip install nqdm
 ```
 
 ## Getting Started
@@ -49,7 +46,7 @@ A more detailled list of available arguments and return values:
 | hashable | pandas.core.series.Series | [{k: v} for k, v in zip(hashable.index, hashable.values)] |
 | hashable | dict                      | [{k: v} for k, v in hashable.items()]                     |
 
-**Length variables (int, float)**
+#### **Length variables (int, float)**
 
 Input:
 
@@ -65,7 +62,7 @@ Output:
 
 ![NQDM_01](https://user-images.githubusercontent.com/46201716/116820687-87564280-ab76-11eb-9bcb-138aaba6e434.png)
 
-**Lists and NumPy arrays**
+#### **Lists and NumPy arrays**
 
 Input:
 
@@ -82,7 +79,7 @@ Output:
 ![NQDM_02](https://user-images.githubusercontent.com/46201716/116820837-5591ab80-ab77-11eb-9954-f9f9d60d24c9.png)
 
 
-**Strings**
+#### **Strings**
 
 Input:
 
@@ -99,7 +96,7 @@ Output:
 ![NQDM_03](https://user-images.githubusercontent.com/46201716/116821097-c6859300-ab78-11eb-95e9-0a7ec46a4631.png)
 
 
-**Dictionaries and Pandas Series**
+#### **Dictionaries and Pandas Series**
 
 Input:
 
@@ -115,7 +112,7 @@ Output:
 ![NQDM_04](https://user-images.githubusercontent.com/46201716/116821270-7fe46880-ab79-11eb-9727-875093e7d2c1.png)
 
 
-**NEW: Usage of Depth Feature**
+### **NEW: Usage of Depth Feature**
 
 Input:
 
@@ -168,7 +165,7 @@ Output:
 
 ![NQDM_08](https://user-images.githubusercontent.com/46201716/117816662-0b8b8280-b267-11eb-8015-89a872044ca5.png)
 
-**NEW: Usage of Order Feature**
+### **NEW: Usage of Order Feature**
 
 Input:
 
@@ -206,7 +203,7 @@ Output:
 ![NQDM_11](https://user-images.githubusercontent.com/46201716/118056744-bfd1f980-b38a-11eb-8284-02aee6a1dbfb.png)
 
 
-**NEW: Usage of Enum Feature**
+### **NEW: Usage of Enum Feature**
 
 
 Input:

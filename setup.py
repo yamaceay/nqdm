@@ -11,7 +11,7 @@ setuptools.setup(
     description="NQDM -- An extension of TQDM which enables you to loop over multiple objects simultaneously, and specify the depth of iteration for each object. It is just pure Python magic, no extra libraries needed. It is customizable, minimal and open source.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yamaceay/nqdm_v2",
+    url="https://github.com/yamaceay/nqdm",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
