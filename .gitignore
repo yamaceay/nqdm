@@ -1,0 +1,4 @@
+.github
+build
+dist
+nqdm.egg-info
