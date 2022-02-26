@@ -51,7 +51,7 @@ class nqdm(tqdm.tqdm):
                 depth = 0
 
         if type(depth) == int:
-            depth = [depth for i in range(len(args))]
+            depth = [depth]*len(args)
 
         self.depth = depth
 
@@ -65,8 +65,9 @@ class nqdm(tqdm.tqdm):
         self.enum = enum
 
         # arguments are saved in self.arguments attribute
-        args = [self.__transform__(arg, depth_i) for arg, depth_i in zip(args, depth)]
-        self.arguments = [self.__flatten__(arg, depth_i) for arg, depth_i in zip(args, depth)]
+        args = list(map(self.__transform__, args, depth))
+        self.arguments = list(map(self.__flatten__, args, depth))
+
 
         # self.total is set to the __limit__(*args) 
         # which returns the total number of expected iterations over all loops
@@ -74,7 +75,10 @@ class nqdm(tqdm.tqdm):
 
         # self.iterable is the iterable data shown in the progress bar
         # in this case, it returns the range of all iterations 
-        self.iterable = range(self.total)        
+        self.iterable = range(self.total) 
+
+        # self.values contains all iteration values
+        self.values = list(map(self.__getelems__, self.iterable))       
 
         # self.delay is set to 0
         self.delay = 0
@@ -106,9 +110,7 @@ class nqdm(tqdm.tqdm):
 
     def __iter__(self):
         if self.disable:
-            for ind in self.iterable:
-                yield self.__getelems__(ind, *self.arguments)
-            return    
+            return self.values
         mininterval = self.mininterval
         last_print_t = self.last_print_t
         last_print_n = self.last_print_n
@@ -121,7 +123,7 @@ class nqdm(tqdm.tqdm):
             print("\n")
             for ind in self.iterable:
                 # returns an informations list (see __getelems__())
-                yield self.__getelems__(ind, *self.arguments)
+                yield self.values[ind]
                 n += 1
                 if n - last_print_n >= self.miniters:
                     cur_t = time()
@@ -168,11 +170,7 @@ class nqdm(tqdm.tqdm):
         is_string = are(str)
         is_integer = are(int)
 
-        is_sortable = False
-        has_keys = False
-        has_items = False
-        is_constant = False
-
+        is_sortable, has_keys, has_items, is_constant = False, False, False, False
         if has_dict:
             is_sortable = got("sort")
             has_keys = got("fromkeys") 
@@ -251,10 +249,10 @@ class nqdm(tqdm.tqdm):
             return arg
 
         if typ == "dict":
-            arg = {k: self.__transform__(v, depth-1) for k,v in arg.items()}
+            arg = dict(map(lambda kv: (kv[0], self.__transform__(kv[1], depth-1)), arg.items()))
 
         if typ == "list":
-            arg = [self.__transform__(v, depth-1) for v in arg]
+            arg = list(map(lambda v: self.__transform__(v, depth-1), arg))
 
         return arg
 
@@ -296,7 +294,7 @@ class nqdm(tqdm.tqdm):
         exec(command)
         return args
 
-    def __getelems__(self, point, *args):
+    def __getelems__(self, point):
         """
         Finds out the offsets of each argument and saves the current element if needed
         
@@ -320,7 +318,7 @@ class nqdm(tqdm.tqdm):
 
         elems = []
 
-        args = self.__order__(args)
+        args = self.__order__(self.arguments)
 
         for i in range(len(args)):
             data, typ = self.__convert__(args[i])
@@ -348,3 +346,5 @@ class nqdm(tqdm.tqdm):
             elems = (point, elems)
 
         return elems
+
+    
