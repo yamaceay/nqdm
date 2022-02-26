@@ -56,11 +56,19 @@ class nqdm(tqdm.tqdm):
         self.depth = depth
 
         # if order has an inconsistent length, then set order to first
+
         if type(order) == list:
             if len(order) != len(args):
                 order = "first"
+
+        if order == "first":
+            order = list(range(len(args)))
+        if order == "last":
+            order = list(range(len(args)-1, -1, -1))
             
         self.order = order
+        map_order = sorted(zip(order, range(len(order))))
+        self.reverse_order = list(map(lambda kv : kv[1], map_order))
 
         self.enum = enum
 
@@ -82,31 +90,6 @@ class nqdm(tqdm.tqdm):
 
         # self.delay is set to 0
         self.delay = 0
-
-    def __order__(self, data):
-        """
-        Reorders the arguments
-        Parameters
-        ----------
-        data : list
-
-            List of arguments to be reordered
-        
-        Returns
-        ----------
-        sorted_values : list
-        
-            Reordered list of arguments
-        """
-        if self.order in ["first", "last"]:
-            if self.order == "last":
-                data = data[::-1]
-
-        else: 
-            data = [data[order_i] for order_i in self.order]
-        
-        return data
-    
 
     def __iter__(self):
         if self.disable:
@@ -204,10 +187,7 @@ class nqdm(tqdm.tqdm):
         
         Parameters
         ----------
-        *args 
-        
-            Unpacked list of arguments of any iterable object type or int/float
-        
+       
         Returns
         ----------
         product : int
@@ -304,10 +284,6 @@ class nqdm(tqdm.tqdm):
         
             The current offset of the main progress bar
         
-        *args : list
-        
-            Unpacked list of arguments containing iterable objects or int/float variables
-        
         Returns
         ----------
         elems : list
@@ -318,7 +294,7 @@ class nqdm(tqdm.tqdm):
 
         elems = []
 
-        args = self.__order__(self.arguments)
+        args = [self.arguments[order_i] for order_i in self.order]
 
         for i in range(len(args)):
             data, typ = self.__convert__(args[i])
@@ -341,10 +317,11 @@ class nqdm(tqdm.tqdm):
             
             elems.append(data)
 
-        elems = elems[0] if len(elems) == 1 else self.__order__(elems)
+        elems = [elems[order_i] for order_i in self.reverse_order]
+        if len(elems) == 1 :
+            elems = elems[0] 
+
         if self.enum:
             elems = (point, elems)
 
         return elems
-
-    
