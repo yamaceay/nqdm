@@ -151,7 +151,6 @@ class nqdm(tqdm.tqdm):
 
         is_range = are(range)
         is_string = are(str)
-        is_integer = are(int)
 
         is_sortable, has_keys, has_items, is_constant = False, False, False, False
         if has_dict:
@@ -174,7 +173,7 @@ class nqdm(tqdm.tqdm):
                 result = dict(y_i), "dict"
         
             else:
-                result = y_i, "int" if is_integer else "float"
+                result = int(y_i), "int"
         
         else:
             result = list(y_i) if is_countable else y_i, y_type
@@ -325,3 +324,50 @@ class nqdm(tqdm.tqdm):
             elems = (point, elems)
 
         return elems
+
+if __name__ == '__main__':
+    import numpy as np
+    import pandas as pd
+    from time import time
+
+    arg1 = {k: v for k,v in zip(list("abcde"), list("fghij"))}
+    arg2 = [v**2 for v in range(10)]
+    arg3 = 4.0
+
+    start = time()
+    for data in nqdm(arg1):
+        print(data)
+    print(time() - start)
+
+    start = time()
+    for data in nqdm(arg1, arg2, arg3):
+        print(data)
+    print(time() - start)
+
+    arg1_deep = np.arange(80000).reshape(200, 20, 20)
+    arg2_deep = {str(i): {k+str(i): v+str(i) for k,v in zip(list("abcde"), list("fghij"))} for i in range(20)}  
+
+    start = time()
+    for data in nqdm(arg1_deep, depth=0):
+        pass
+    print(time() - start)
+
+    start = time()
+    for data in nqdm(arg1_deep, depth=1):
+        pass
+    print(time() - start)
+
+    start = time()
+    for data in nqdm(arg1_deep, depth=2):
+        pass
+    print(time() - start)
+
+    start = time()
+    for data in nqdm(arg2_deep, depth=0):
+        pass
+    print(time() - start)
+
+    start = time()
+    for data in nqdm(arg2_deep, depth=1):
+        pass
+    print(time() - start)
