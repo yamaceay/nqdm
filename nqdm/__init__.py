@@ -1,3 +1,4 @@
+from xml.etree.ElementTree import indent
 import tqdm 
 
 class nqdm(tqdm.tqdm):
@@ -27,14 +28,16 @@ class nqdm(tqdm.tqdm):
     order : str | list = "first"
         
         Order defining the hierarchy of nested loops
-    
-    delay : int = 0
-        
-        Total delay
 
     enum : bool = False
 
         Whether data is enumerated or not
+
+    disable : bool = False
+
+        Progress bar is not displayed if set to True
+
+    
     """
     def __init__(self, *args, depth = 0, order = "first", enum = False, **kwargs):
 
@@ -63,7 +66,7 @@ class nqdm(tqdm.tqdm):
         self.enum = enum
 
         # arguments are saved in self.arguments attribute
-        args = [self.__transformdeep__(arg, depth_i) for arg, depth_i in zip(args, depth)]
+        args = [self.__transform__(arg, depth_i) for arg, depth_i in zip(args, depth)]
         self.arguments = [self.__flatten__(arg, depth_i) for arg, depth_i in zip(args, depth)]
 
         # self.total is set to the __limit__(*args) 
@@ -72,12 +75,12 @@ class nqdm(tqdm.tqdm):
 
         # self.iterable is the iterable data shown in the progress bar
         # in this case, it returns the range of all iterations 
-        self.iterable = range(self.total)
+        self.iterable = range(self.total)        
 
         # self.delay is set to 0
         self.delay = 0
 
-    def __neworder__(self, data):
+    def __order__(self, data):
         """
         Reorders the arguments
         Parameters
@@ -92,61 +95,21 @@ class nqdm(tqdm.tqdm):
         
             Reordered list of arguments
         """
+        if self.order in ["first", "last"]:
+            if self.order == "last":
+                data = data[::-1]
 
-        # if first, then do not change anything
-        if self.order == "first":
-            sorted_values = data
+        else: 
+            data = [data[order_i] for order_i in self.order]
         
-        # if last, then reverse it
-        elif self.order == "last":
-            sorted_values = data[::-1]
-
-        # if any arbitrary order, then reorder accordingly
-        else:
-            indices = list(range(len(data)))
-            mapper = {order_i: data[index_i] for order_i, index_i in zip(self.order, indices)}
-            sorted_mapper = {key: mapper[key] for key in sorted(mapper.keys())}
-            sorted_values = list(sorted_mapper.values())
-        
-        return sorted_values
-    
-    def __oldorder__(self, data):
-
-        # if first, do not change anything
-        if self.order == "first":
-            old_data = data
-        
-        # if last, reverse it
-        elif self.order == "last":
-            old_data = data[::-1]
-
-        # if any arbitrary order, reorder to the old structure
-        else:
-            old_data = [data[order_i] for order_i in self.order]
-        return old_data
+        return data
     
 
     def __iter__(self):
-        """
-        Built-in iter function. Some parts of the 
-        __iter__() function of TQDM is reimplemented
-        """
-        iterable = self.iterable
-
-        # no display in the case the bar is disabled
         if self.disable:
-            print("\n")
-            for ind in iterable:
-
-                # returns an informations list (see __getelems__())
-                obj = self.__getelems__(ind, *self.arguments)
-
-                # if data needs to be enumerated, then add index
-                if self.enum:
-                    obj = (ind, obj)
-                    
-                yield obj
-            return
+            for ind in self.iterable:
+                yield self.__getelems__(ind, *self.arguments)
+            return    
         mininterval = self.mininterval
         last_print_t = self.last_print_t
         last_print_n = self.last_print_n
@@ -157,15 +120,9 @@ class nqdm(tqdm.tqdm):
         # the bar is not disabled and it works well
         try:
             print("\n")
-            for ind in iterable:
+            for ind in self.iterable:
                 # returns an informations list (see __getelems__())
-                obj = self.__getelems__(ind, *self.arguments)
-
-                # if data is to be enumerated, then add index
-                if self.enum:
-                    obj = (ind, obj)
-
-                yield obj
+                yield self.__getelems__(ind, *self.arguments)
                 n += 1
                 if n - last_print_n >= self.miniters:
                     cur_t = time()
@@ -178,7 +135,7 @@ class nqdm(tqdm.tqdm):
             self.n = n
             self.close()
 
-    def __transform__(self, y_i):
+    def __convert__(self, y_i):
         """
         Converts the given object to its respective built-in equivalent
         Parameters
@@ -197,53 +154,54 @@ class nqdm(tqdm.tqdm):
         
             Type of argument
         """
-
-        # Functions to extract features from given object
-        is_iterable = lambda y: True if y == range else any([x == "sort" for x in y.__dict__]) if hasattr(y, '__dict__') else False
-        is_hashable = lambda y: any([x in ["fromkeys", "items"] for x in y.__dict__]) if hasattr(y, '__dict__') else False
-        is_constant = lambda y: any([x == "as_integer_ratio" for x in y.__dict__]) if hasattr(y, '__dict__') else False
-        is_string = lambda y: y == str
-
-        argmax = lambda x: max(zip(x, range(len(x))))[1]
-
-        # List of functions
-        functions = [is_iterable, is_hashable, is_constant, is_string]
-
-        # Iterate over functions and get results
-        y = [fn(type(y_i))*1 for fn in functions]
-
-        # No overlapping allowed due to the simplicity reasons
-        # If possible try to convert to list
-        if sum(y) != 1:
-            try:
-                if hasattr(y_i, "__len__") or hasattr(y_i, "__iter__"):
-                    y_i = list(y_i)
-            except:
-                pass
-            return y_i, type(y_i)
-
-        # Convert to list
-        if argmax(y) == 0:
-            return list(y_i), "list" 
         
-        # Conversion to dict
-        if argmax(y) == 1:
-            return dict(y_i), "dict"
+        y_type = type(y_i)
+
+        are = lambda feature : y_type == feature
+        has = lambda feature : hasattr(y_type, feature)
+        got = lambda feature : feature in y_type.__dict__
+
+        has_len = has("__len__")
+        has_iter = has("__iter__")
+        has_dict = has('__dict__')
+
+        is_range = are(range)
+        is_string = are(str)
+        is_integer = are(int)
+
+        is_sortable = False
+        has_keys = False
+        has_items = False
+        is_constant = False
+
+        if has_dict:
+            is_sortable = got("sort")
+            has_keys = got("fromkeys") 
+            has_items = got("items") 
+            is_constant = got("as_integer_ratio") 
         
-        # Check if int or not given that it is a constant
-        if argmax(y) == 2:
-            if type(y_i) == int:
-                return y_i, "int"
+        is_iterable = is_sortable or is_range
+        is_hashable = has_keys or has_items
+        is_countable = has_len or has_iter
+
+        unique = sum([is_iterable, is_hashable, is_constant, is_string]) == 1
+        if unique:
+            
+            if is_iterable or is_string:
+                result = list(y_i), "string" if is_string else "list"
+        
+            elif is_hashable:
+                result = dict(y_i), "dict"
+        
             else:
-                # Note: float here means it is not int
-                return y_i, "float"
+                result = y_i, "int" if is_integer else "float"
         
-        # Conversion of string to list
-        if argmax(y) == 3:
-            return list(y_i), "string"
+        else:
+            result = list(y_i) if is_countable else y_i, y_type
+        
+        return result 
         
     def __limit__(self):
-        args = self.arguments
         """
         Calculates the total number of iterations over every loops.
         
@@ -260,20 +218,15 @@ class nqdm(tqdm.tqdm):
             Total number of iterations expected over all arguments
         """
         product = 1
-        for i in range(len(args)):
-            arg = args[i]
+        for arg in self.arguments:
 
-            # if the argument an iterable object
-            # then multiply the product with the length of argument
-            # otherwise multiply the product with the argument itself
-            # (it is already a length variable)
             is_iterable = hasattr(arg, "__len__")
             leng = len(arg) if is_iterable else int(arg)
             product *= leng
 
         return product
 
-    def __transformdeep__(self, arg, depth):
+    def __transform__(self, arg, depth):
         """
         Transforms the deeper levels of argument if needed
         
@@ -293,21 +246,16 @@ class nqdm(tqdm.tqdm):
         
             Transformed argument
         """
+        arg, typ = self.__convert__(arg)
 
-        # Initial transformation of data
-        arg, typ = self.__transform__(arg)
-
-        # If depth is 0 or less, than end the transformation
         if depth < 1:
             return arg
 
-        # If it is a dict, transform each value
         if typ == "dict":
-            arg = {k: self.__transformdeep__(v, depth-1) for k,v in arg.items()}
+            arg = {k: self.__transform__(v, depth-1) for k,v in arg.items()}
 
-        # If it is a list, transform each element
         if typ == "list":
-            arg = [self.__transformdeep__(v, depth-1) for v in arg]
+            arg = [self.__transform__(v, depth-1) for v in arg]
 
         return arg
 
@@ -332,32 +280,20 @@ class nqdm(tqdm.tqdm):
             Flattened argument
         """
 
-        # If depth is 0 or less, then flattening is not possible
         if depth < 1:
             return arg
         
-        # Dynamically create the code for iteration
         args = []
+
         command = "arg_ = arg.values() if type(arg) == dict else arg if hasattr(arg, '__len__') else []\nfor arg0 in arg_:\n"
         for i in range(1, depth+1):
-            
-            # If dict then iterate over values
-            # If list then iterate over itself
-            # If constant then don't iterate
             command += "  "*(2*i-1) + f"arg_{i-1} = arg{i-1}.values() if type(arg{i-1}) == dict else arg{i-1} if hasattr(arg{i-1}, '__len__') else []\n"
-            
-            # If constant, then save data directly
             command += "  "*(2*i-1) + f"if not len(arg_{i-1}):\n"
             command += "  "*(2*i) + f"args.append(arg{i-1})\n"
-
-            # Otherwise iterate further
             command += "  "*(2*i-1) + f"else:\n"
             command += "  "*(2*i) + f"for arg{i} in arg_{i-1}:\n"
-        
-        # Append each item flatly
         command += "  "*(2*i+1) + f"args.append(arg{i})\n"
 
-        # Execute the command
         exec(command)
         return args
 
@@ -377,65 +313,39 @@ class nqdm(tqdm.tqdm):
         
         Returns
         ----------
-        informations : list
+        elems : list
             
             Contains current offset of each arguments 
             (and if given: their corresponding key-value pairs)
         """
 
-        # informations list to be returned
-        informations = []
+        elems = []
 
-        # other datas
-        offsets = []
-        datas = []
-        types = []
-
-        args = self.__neworder__(args)
+        args = self.__order__(args)
 
         for i in range(len(args)):
+            data, typ = self.__convert__(args[i])
 
-            arg = args[i]
-
-            # the following operations depends on the type of argument
-            data, typ = self.__transform__(arg)
-
-            # if data is float then convert it to int
             if typ == "float":
                 data = int(data)
 
-            # calculate length
             leng = data if type(data) == int else len(data)
 
-            # the index/offset of given argument
             offset = point%leng
-
-            # continue with new arguments
             point = point//leng
-        
-            # add indices
-            offsets.append(offset)
-            datas.append(data)
-            types.append(typ)
-        
-        for i in range(len(args)):
-
-            # get current index
-            offset = offsets[i]
-            data = datas[i]
-            typ = types[i]
-
-            # store variables as either dict item or list value or offset
+            
             if typ == "dict":
-                data = {list(data.keys())[offset]: list(data.values())[offset]}
+                data = [{k : v} 
+                for k, v in data.items()][offset]
             elif typ == "list":
                 data = data[offset]
             else:
                 data = offset
             
-            informations.append(data)
+            elems.append(data)
 
-        # reduce dimension if just one element
-        elems = informations[0] if len(informations) == 1 else self.__oldorder__(informations)
+        elems = elems[0] if len(elems) == 1 else self.__order__(elems)
+        if self.enum:
+            elems = (point, elems)
 
         return elems
