@@ -5,7 +5,7 @@ class nqdm(tqdm.tqdm):
     NQDM progress bar
      - Compresses nested loops into a single loop 
      - Can work with different types of data
-     - Is implemented by TQDM 
+     - Is implemented using TQDM
     Attributes
     ----------
     total : int
@@ -70,12 +70,6 @@ class nqdm(tqdm.tqdm):
         self.delay = 0
         self.disable = disable
 
-        # Arguments are transformed
-        args = list(map(self.__transform__, args, depth))
-        args = list(map(self.__flatten__, args, depth))
-        types = list(map(self.__typeof__, args))
-        args = list(map(self.__getfunctions__("iter"), types, args))
-        
         # Length features are set
         lens = list(map(len, args))
         self.lens = [lens[order_i] for order_i in self.reverse_order]
@@ -85,6 +79,7 @@ class nqdm(tqdm.tqdm):
         self.iterable = range(self.total) 
 
         # Items are ready to yield
+        args = list(map(self.__flatten__, args, depth))
         get_elem = lambda point : [arg[offset] for arg, offset in zip(args, self.__ndindex__(point))]
         args = list(map(get_elem, self.iterable))
         if len(self.lens) == 1: args = list(map(lambda x : x[0], args))
@@ -117,67 +112,31 @@ class nqdm(tqdm.tqdm):
             self.n = n
             self.close()
 
-    def __getfunctions__(self, kind = None):
-        """
-        Context-specific type-handling happens here
-        
-        Parameters
-        ----------
-        kind : String = None
-        
-            'iter': for yielding the data
-            'flat': for flattening the data
-            otherwise for transforming the data
-        
-        Returns
-        ----------
-        arg
-        
-            New argument
-
-        """
-
-        if kind == "iter":
-            functions = {
+    def __getfunctions__(self, kind = "any"):
+        functions = {
+            "iter" : {
                 "dict" : lambda arg : [{k : v} 
                 for k, v in arg.items()],
                 "list" : lambda arg : arg,
-                "int" : lambda arg : list(range(arg))*arg,
+                "int" : lambda arg : list(range(arg)),
                 "any" : lambda arg : arg
-            }   
-        elif kind == "flat":
-            functions = {
-                "list": lambda arg : arg,
-                "dict": lambda arg : arg.values(),
+            },
+            "flat" : {
+                "list": lambda arg : list(arg),
+                "dict": lambda arg : list(dict(arg).values()),
                 "int": lambda arg : [],
                 "any": lambda arg : []
-            }
-        else:
-            functions = {
+            },
+            "any" : {
                 "list": lambda arg : list(arg),
                 "dict": lambda arg : dict(arg),
                 "int": lambda arg : int(arg),
                 "any": lambda arg : arg
-            }        
-        return lambda typ, arg : functions[typ](arg)
+            }       
+        }
+        return lambda arg : functions[kind][self.__typeof__(arg)](arg)
     
     def __typeof__(self, arg):
-        """
-        Returns the type that the argument will be casted
-        
-        Parameters
-        ----------
-        arg
-        
-            Argument to be casted
-        
-        Returns
-        ----------
-        typ
-        
-            New type of argument
-        """
-
         y_type = type(arg)
 
         are = lambda feature : y_type == feature
@@ -215,23 +174,6 @@ class nqdm(tqdm.tqdm):
         return result
 
     def __ndindex__(self, point):
-        """
-        Finds the offsets of given iteration step
-        
-        Parameters
-        ----------
-        point
-        
-            The iteration step
-        
-        Returns
-        ----------
-        indices
-        
-            Indices of arguments
-
-        """
-
         indices = []
         for ln in self.lens:
             indices.append(point % ln)
@@ -240,81 +182,41 @@ class nqdm(tqdm.tqdm):
         indices = [indices[order_i] for order_i in self.order]
         return indices        
 
-    def __transform__(self, arg, depth):
-        """
-        Transforms the deeper levels of argument if needed
-        
-        Parameters
-        ----------
-        arg
-        
-            Argument to be transformed deeply
-        
-        depth : int
-        
-            Depth of transformation
-        
-        Returns
-        ----------
-        arg
-        
-            Transformed argument
-        """
-        
-        typ = self.__typeof__(arg)
-        arg = self.__getfunctions__()(typ, arg)
+  
+    def __flatten__(self, arg, depth):
+        arg = self.__getfunctions__()(arg)
 
-        if depth < 1:
-            return arg
-
-        if typ == "dict":
-            arg = dict(map(lambda kv: (kv[0], self.__transform__(kv[1], depth-1)), arg.items()))
-
-        if typ == "list":
-            arg = list(map(lambda v: self.__transform__(v, depth-1), arg))
+        if type(arg) in [list, dict] and depth >= 1:
+            arg = self.__flattenr__(arg, depth)
+        
+        arg = self.__getfunctions__('iter')(arg)
 
         return arg
+    
+    def __flattenr__(self, arg, depth):
+        arg = self.__getfunctions__('flat')(arg)
+        if depth < 1: return arg
 
-    def __flatten__(self, arg, depth):
-        """
-        Very flexible function allowing to create an arbitrary 
-        number of loops and flatten the given argument
-        Parameters
-        ----------
-        arg
-        
-            Argument to be flattened
-        
-        depth : int
-        
-            Depth of argument
-        
-        Returns
-        ----------
-        args
-        
-            Flattened argument
-        """
-
-        if depth < 1:
-            return arg
-
-        
         args = []
-        command = ""
-        build = lambda idt, string : command + "  "*idt + string
+        for arg_i in arg:
+            arg_i_ = self.__flattenr__(arg_i, depth-1)
+            if len(arg_i_) == 0:
+                args.append(arg_i) 
+            for arg_ii in arg_i_:
+                args.append(arg_ii)
 
-        command = build(0, "typ = self.__typeof__(arg)\n")
-        command = build(0, "arg_ = self.__getfunctions__('flat')(typ, arg)\n")
-        command = build(0, "for arg0 in arg_:\n")
-        for i in range(depth):
-            command = build(2*i+1, f"typ{i} = self.__typeof__(arg{i})\n")
-            command = build(2*i+1, f"arg_{i} = self.__getfunctions__('flat')(typ{i}, arg{i})\n")
-            command = build(2*i+1, f"if typ{i} in ['any', 'int']:\n")
-            command = build(2*i+2, f"args.append(arg{i})\n")
-            command = build(2*i+1, f"else:\n")
-            command = build(2*i+2, f"for arg{i+1} in arg_{i}:\n")
-        command = build(2*i+3, f"args.append(arg{i+1})\n")
-
-        exec(command)
         return args
+
+if __name__ == '__main__':
+    import numpy as np
+    import pandas as pd
+
+    arg1 = {k: v for k,v in zip(list("abcde"), list("fghij"))}
+    arg2 = [v**2 for v in range(10)]
+    arg3 = 4.0
+    arg4 = {str(k*25) : {str(j*5+25*k): {str(i+5*j+25*k) : i+5*j+25*k for i in range(5)} for j in range(5)} for k in range(5)}
+    arg5 = np.array([2.3, 3.4, 4.5])
+
+    for i in nqdm(arg1, arg2, arg3, depth = 1):
+        print(i)
+        pass
