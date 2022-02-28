@@ -8,15 +8,12 @@ class nqdm(tqdm.tqdm):
      - Is implemented using TQDM
     Attributes
     ----------
-    total : int
-
-        Total number of expected iterations over all loops
 
     iterable : range
         
         Range object storing indices ranging from 0 to total-1
     
-    arguments : list
+    values : list
         
         List of iterable objects and single variables
     
@@ -62,24 +59,28 @@ class nqdm(tqdm.tqdm):
             order = list(range(len(args)-1, -1, -1))
 
         self.order = order 
-        map_order = sorted(zip(order, range(len(order))))
-        self.reverse_order = list(map(lambda kv : kv[1], map_order))
+        self.reverse_order = list(map(
+            lambda kv : kv[1], 
+            sorted(zip(order, range(len(order))))
+            ))
 
         # Other variables are set
         self.enum = enum
         self.delay = 0
         self.disable = disable
 
+        # Items are ready to yield
+        args = list(map(self.__flatten__, args, depth))
+        
         # Length features are set
         lens = list(map(len, args))
         self.lens = [lens[order_i] for order_i in self.reverse_order]
-        self.total = 1
+        total = 1
         for ln in self.lens:
-            self.total *= ln
-        self.iterable = range(self.total) 
+            total *= ln
+        self.iterable = range(total) 
 
-        # Items are ready to yield
-        args = list(map(self.__flatten__, args, depth))
+        # Items are called in right order
         get_elem = lambda point : [arg[offset] for arg, offset in zip(args, self.__ndindex__(point))]
         args = list(map(get_elem, self.iterable))
         if len(self.lens) == 1: args = list(map(lambda x : x[0], args))
@@ -112,34 +113,34 @@ class nqdm(tqdm.tqdm):
             self.n = n
             self.close()
 
-    def __getfunctions__(self, kind = "any"):
+    def __apply__(self, kind = "any"):
         functions = {
-            "iter" : {
-                "dict" : lambda arg : [{k : v} 
-                for k, v in arg.items()],
-                "list" : lambda arg : arg,
-                "int" : lambda arg : list(range(arg)),
-                "any" : lambda arg : arg
-            },
+            "any" : {
+                "list": lambda arg : list(arg),
+                "dict": lambda arg : dict(arg),
+                "int": lambda arg : int(arg),
+                "any": lambda arg : arg
+            },      
             "flat" : {
                 "list": lambda arg : list(arg),
                 "dict": lambda arg : list(dict(arg).values()),
                 "int": lambda arg : [],
                 "any": lambda arg : []
             },
-            "any" : {
-                "list": lambda arg : list(arg),
-                "dict": lambda arg : dict(arg),
-                "int": lambda arg : int(arg),
-                "any": lambda arg : arg
-            }       
+            "iter" : {
+                "dict" : lambda arg : [{k : v} 
+                for k, v in arg.items()],
+                "list" : lambda arg : arg,
+                "int" : lambda arg : list(range(arg)),
+                "any" : lambda arg : arg
+            }
         }
         return lambda arg : functions[kind][self.__typeof__(arg)](arg)
     
     def __typeof__(self, arg):
         y_type = type(arg)
 
-        are = lambda feature : y_type == feature
+        are = lambda feature : y_type is feature
         has = lambda feature : hasattr(y_type, feature)
         got = lambda feature : feature in y_type.__dict__
 
@@ -178,23 +179,23 @@ class nqdm(tqdm.tqdm):
         for ln in self.lens:
             indices.append(point % ln)
             point //= ln
-
+            
         indices = [indices[order_i] for order_i in self.order]
         return indices        
 
   
     def __flatten__(self, arg, depth):
-        arg = self.__getfunctions__()(arg)
+        arg = self.__apply__()(arg)
 
         if type(arg) in [list, dict] and depth >= 1:
             arg = self.__flattenr__(arg, depth)
         
-        arg = self.__getfunctions__('iter')(arg)
+        arg = self.__apply__('iter')(arg)
 
         return arg
     
     def __flattenr__(self, arg, depth):
-        arg = self.__getfunctions__('flat')(arg)
+        arg = self.__apply__('flat')(arg)
         if depth < 1: return arg
 
         args = []
@@ -206,17 +207,3 @@ class nqdm(tqdm.tqdm):
                 args.append(arg_ii)
 
         return args
-
-if __name__ == '__main__':
-    import numpy as np
-    import pandas as pd
-
-    arg1 = {k: v for k,v in zip(list("abcde"), list("fghij"))}
-    arg2 = [v**2 for v in range(10)]
-    arg3 = 4.0
-    arg4 = {str(k*25) : {str(j*5+25*k): {str(i+5*j+25*k) : i+5*j+25*k for i in range(5)} for j in range(5)} for k in range(5)}
-    arg5 = np.array([2.3, 3.4, 4.5])
-
-    for i in nqdm(arg1, arg2, arg3, depth = 1):
-        print(i)
-        pass
