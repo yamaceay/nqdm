@@ -1,8 +1,8 @@
 import unittest
 from nqdm import nqdm
+from time import time
 import pandas as pd
 import numpy as np
-from time import time
 
 class TestNqdm(unittest.TestCase):
 
@@ -11,52 +11,40 @@ class TestNqdm(unittest.TestCase):
     """
     def test_init_1(self):
         int_ex = nqdm(5).values
-        self.assertListEqual(int_ex, [0, 1, 2, 3, 4])
-        
+        self.assertListEqual(int_ex, [0, 1, 2, 3, 4])   
     def test_init_2(self): 
         list_ex = nqdm([1, 2]).values
         self.assertListEqual(list_ex, [1, 2])
-
     def test_init_3(self):
         float_ex = nqdm(1.0).values
         self.assertListEqual(float_ex, [0])
-
     def test_init_4(self):
         zero_ex = nqdm().values
         self.assertListEqual(zero_ex, [])
-
     def test_init_5(self):
         negative_ex = nqdm(-1.0).values
         self.assertListEqual(negative_ex, [])
-
     def test_init_6(self):
         dict_ex = nqdm({"a": 1, "b": 2, "c": 3}).values
         self.assertListEqual(dict_ex, [{"a": 1}, {"b": 2}, {"c": 3}])
-
     def test_init_7(self):
         range_ex = nqdm(range(6)).values
         self.assertListEqual(range_ex, list(range(6)))
-
     def test_init_8(self):
         numpy_ex = nqdm(np.arange(25)).values
         self.assertListEqual(numpy_ex, list(range(25)))
-
     def test_init_9(self):
         series_ex = nqdm(pd.Series({"a": 5, "b": 7})).values
         self.assertListEqual(series_ex, [{"a": 5}, {"b": 7}])
-
     def test_init_10(self):
         string_ex = nqdm("hello world").values
         self.assertListEqual(string_ex, list("hello world"))
-
     def test_init_11(self):
         tuple_ex = nqdm(tuple([1, 2])).values
         self.assertListEqual(tuple_ex, list([1, 2]))
-
     def test_init_12(self):
         set_ex = nqdm(set(list("abc"))).values
         self.assertSetEqual(set(set_ex), set(list("abc")))
-
     """
     Tests the effects of depth parameter
     """
@@ -67,7 +55,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = invalid_level_ex[i]
             arr1_ = five_d_array[i]
             self.assertTrue(np.array_equal(arr1, arr1_))
-    
     def test_depth_2(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         one_level_ex = nqdm(five_d_array, depth = 0).values
@@ -75,15 +62,13 @@ class TestNqdm(unittest.TestCase):
             arr1 = one_level_ex[i]
             arr1_ = five_d_array[i]
             self.assertTrue(np.array_equal(arr1, arr1_))
-    
     def test_depth_3(self):
         five_d_array = np.arange(2**5).reshape([2]*5)   
         two_level_ex = nqdm(five_d_array, depth = 1).values
         for i in range(len(two_level_ex)):
             arr1 = two_level_ex[i]
             arr1_ = five_d_array[i//2][i%2]
-            self.assertTrue(np.array_equal(arr1, arr1_))
-    
+            self.assertTrue(np.array_equal(arr1, arr1_)) 
     def test_depth_4(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         three_level_ex = nqdm(five_d_array, depth = 2).values
@@ -91,7 +76,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = three_level_ex[i]
             arr1_ = five_d_array[i//4][i//2%2][i%2]
             self.assertTrue(np.array_equal(arr1, arr1_))
-    
     def test_depth_5(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         four_level_ex = nqdm(five_d_array, depth = 3).values
@@ -99,7 +83,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = four_level_ex[i]
             arr1_ = five_d_array[i//8][i//4%2][i//2%2][i%2]
             self.assertTrue(np.array_equal(arr1, arr1_))
-    
     def test_depth_6(self):
         five_d_array = np.arange(2**5).reshape([2]*5)    
         five_level_ex = nqdm(five_d_array, depth = 4).values
@@ -107,7 +90,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = five_level_ex[i]
             arr1_ = five_d_array[i//16][i//8%2][i//4%2][i//2%2][i%2]
             self.assertTrue(np.array_equal(arr1, arr1_))
-    
     def test_depth_7(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         six_level_ex = nqdm(five_d_array, depth = 5).values
@@ -115,7 +97,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = six_level_ex[i]
             arr1_ = five_d_array[i//16][i//8%2][i//4%2][i//2%2][i%2]
             self.assertTrue(np.array_equal(arr1, arr1_))
-    
     def test_depth_8(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         two_d_array = np.arange(4).reshape(2, 2)
@@ -125,7 +106,6 @@ class TestNqdm(unittest.TestCase):
             arr1_ = [two_d_array[i%2], five_d_array[i//2]]
             self.assertTrue(np.array_equal(arr1[0], arr1_[0]))
             self.assertTrue(np.array_equal(arr1[1], arr1_[1]))
-    
     def test_depth_9(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         two_d_array = np.arange(4).reshape(2, 2)
@@ -135,7 +115,6 @@ class TestNqdm(unittest.TestCase):
             arr1_ = [two_d_array[i%2], five_d_array[i//4][i//2%2]]
             self.assertTrue(np.array_equal(arr1[0], arr1_[0]))
             self.assertTrue(np.array_equal(arr1[1], arr1_[1]))
-    
     def test_depth_10(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         two_d_array = np.arange(4).reshape(2, 2)        
@@ -145,7 +124,6 @@ class TestNqdm(unittest.TestCase):
             arr1_ = [two_d_array[i%2], five_d_array[i//8][i//4%2][i//2%2]]
             self.assertTrue(np.array_equal(arr1[0], arr1_[0]))
             self.assertTrue(np.array_equal(arr1[1], arr1_[1]))
-    
     def test_depth_11(self):
         five_d_array = np.arange(2**5).reshape([2]*5)
         two_d_array = np.arange(4).reshape(2, 2)
@@ -155,7 +133,6 @@ class TestNqdm(unittest.TestCase):
             arr1_ = [two_d_array[i//2%2][i%2], five_d_array[i//8][i//4%2]]
             self.assertTrue(np.array_equal(arr1[0], arr1_[0]))
             self.assertTrue(np.array_equal(arr1[1], arr1_[1]))
-    
     def test_depth_12(self):
         three_d_dict = {str(k*4): {str(j*2+k*4): {str(i+j*2+k*4): i+j*2+k*4 
             for i in range(2)} 
@@ -169,7 +146,6 @@ class TestNqdm(unittest.TestCase):
             {str(i*4+j*2+k) : i*4+j*2+k
             for k in range(2)} 
             for j in range(2)}})
-    
     def test_depth_13(self):
         three_d_dict = {str(k*4): {str(j*2+k*4): {str(i+j*2+k*4): i+j*2+k*4 
             for i in range(2)} 
@@ -181,7 +157,6 @@ class TestNqdm(unittest.TestCase):
             self.assertDictEqual(dict1, {str(i*2): 
             {str(i*2+j): i*2+j 
             for j in range(2)}})
-    
     def test_depth_14(self):
         three_d_dict = {str(k*4): {str(j*2+k*4): {str(i+j*2+k*4): i+j*2+k*4 
             for i in range(2)} 
@@ -191,7 +166,6 @@ class TestNqdm(unittest.TestCase):
         for i in range(len(dict_three_level)):
             dict1 = dict_three_level[i]
             self.assertDictEqual(dict1, {str(i) : i})
-    
     def test_depth_15(self):
         three_d_dict = {str(k*4): {str(j*2+k*4): {str(i+j*2+k*4): i+j*2+k*4 
             for i in range(2)} 
@@ -201,7 +175,6 @@ class TestNqdm(unittest.TestCase):
         for i in range(len(dict_four_level)):
             dict1 = dict_four_level[i]
             self.assertEqual(dict1, i)
-
     """
     Tests the effects of order parameter
     """
@@ -212,7 +185,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = first_order[i]
             arr1_ = [i%2, i//2%2, i//4%2, i//8%2, i//16]
             self.assertListEqual(arr1, arr1_)
-
     def test_order_2(self):
         five_arrays = [np.arange(2)]*5
         last_order = nqdm(*five_arrays, order = "last").values
@@ -220,7 +192,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = last_order[i]
             arr1_ = [i%2, i//2%2, i//4%2, i//8%2, i//16][::-1]
             self.assertListEqual(arr1, arr1_)
-
     def test_order_3(self):
         five_arrays = [np.arange(2)]*5
         custom_order = nqdm(*five_arrays, order = [0, 2, 4, 3, 1]).values
@@ -228,7 +199,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = custom_order[i]
             arr1_ = [i%2, i//4%2, i//16, i//8%2, i//2%2]
             self.assertListEqual(arr1, arr1_)
-
     def test_order_4(self):
         five_arrays = [np.arange(2)]*5
         invalid_order = nqdm(*five_arrays, order = [0, 4, 4, 3, 1]).values
@@ -236,7 +206,6 @@ class TestNqdm(unittest.TestCase):
             arr1 = invalid_order[i]
             arr1_ = [i%2, i//2%2, i//4%2, i//8%2, i//16]
             self.assertListEqual(arr1, arr1_)
-
     """
     Tests the effects of enum parameter
     """
@@ -248,33 +217,29 @@ class TestNqdm(unittest.TestCase):
         for arr1, arr1_ in zip(enumerate(without_enum), with_enum):
             self.assertEqual(arr1[0], arr1_[0])
             self.assertListEqual(arr1[1], arr1_[1])
-
     """
     Stresses the whole algorithm
     """
     def test_stress_1(self):
         array = np.arange(7**6).reshape(*[7]*6)
         start = time()
-        instance = nqdm(array, depth = 3)
+        nqdm(array, depth = 3)
         self.assertGreaterEqual(0.15, time() - start)
-
     def test_stress_2(self):
         array = np.arange(7**6).reshape(*[7]*6)
         start = time()
-        instance = nqdm(array, depth = 4)
+        nqdm(array, depth = 4)
         self.assertGreaterEqual(0.30, time() - start)
-
     def test_stress_3(self):
         array = np.arange(7**6).reshape(*[7]*6)
         start = time()
-        instance = nqdm(array, depth = 5)
-        self.assertGreaterEqual(0.60, time() - start)
-    
+        nqdm(array, depth = 5)
+        self.assertGreaterEqual(1.00, time() - start)
     def test_stress_4(self):
         array = np.arange(7**6).reshape(*[7]*6)
         start = time()
-        instance = nqdm(array, depth = 6)
-        self.assertGreaterEqual(1.20, time() - start)
+        nqdm(array, depth = 6)
+        self.assertGreaterEqual(3.00, time() - start)
 
 if (__name__ == "__main__"):
     unittest.main()
