@@ -2,3 +2,7 @@
 build
 dist
 nqdm.egg-info
+.coverage
+.vscode/
+__pycache__/
+nqdm/__pycache__/

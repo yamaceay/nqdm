@@ -3,47 +3,57 @@
         - Can work with different types of data
         - Is implemented using TQDM"""
 import tqdm
-def __typeof__(arg):
-    are = lambda feature : isinstance(arg,feature)
-    has = lambda feature : hasattr(type(arg),feature)
-    got = lambda feature : has('__dict__') and feature in type(arg).__dict__
-    is_constant = got("as_integer_ratio")
-    is_hashable = got("fromkeys") or got("items")
-    is_iterable = got("sort") or are(range) or are(str)
-    unique = int(is_constant + is_hashable + is_iterable) == 1
-    if unique and is_hashable:
+def __has__(arg, feature):
+    return hasattr(type(arg),feature)
+def __got__(arg, feature):
+    return __has__(arg, '__dict__') and feature in type(arg).__dict__
+def __typeof_calc__(arg):
+    is_constant = __got__(arg, "as_integer_ratio")
+    is_hashable = __got__(arg, "fromkeys") or __got__(arg, "items")
+    is_iterable = __got__(arg, "sort") or isinstance(arg, (range, str))
+    is_countable = __has__(arg, "__len__") or __has__(arg, "__iter__")
+    return [is_hashable, is_constant, is_iterable, is_countable]
+def __typeof_result__(types):
+    if types[0]:
         result = "dict"
-    elif unique and is_constant:
+    elif types[1]:
         result = "int"
-    elif unique or has("__len__") or has("__iter__"):
+    elif types[2]:
         result = "list"
-    else:
-        result = "any"
     return result
+def __typeof__(arg):
+    types = __typeof_calc__(arg)
+    result = "list" if types[3] else "any"
+    if sum(types[:3]) == 1:
+        result = __typeof_result__(types)
+    return result
+def __handle_dict__(kind, arg):
+    if kind == "flat":
+        arg = list(dict(arg).values())
+    elif kind == "iter":
+        arg = [{k : v} for k, v in dict(arg).items()]
+    else:
+        arg = dict(arg)
+    return arg
+def __handle_int__(kind, arg):
+    if kind == "flat":
+        arg = []
+    elif kind == "iter":
+        arg = list(range(arg))
+    else:
+        arg = int(arg)
+    return arg
 def __apply__(arg, kind = "any"):
     typeof = __typeof__(arg)
     if typeof == "dict":
-        if kind == "flat":
-            result = list(dict(arg).values())
-        elif kind == "iter":
-            result = [{k : v} for k, v in dict(arg).items()]
-        else:
-            result = dict(arg)
+        arg = __handle_dict__(kind, arg)
     elif typeof == "int":
-        if kind == "flat":
-            result = []
-        elif kind == "iter":
-            result = list(range(arg))
-        else:
-            result = int(arg)
+        arg = __handle_int__(kind, arg)
     elif typeof == "list":
-        result = list(arg)
-    else:
-        if kind == "flat":
-            result = []
-        else:
-            result = arg
-    return result
+        arg = list(arg)
+    elif kind == "flat":
+        arg = []
+    return arg
 def __process__(arg, depth):
     arg = __apply__(arg)
     if __typeof__(arg) in ["list", "dict"] and depth >= 1:
@@ -119,12 +129,7 @@ class nqdm(tqdm.tqdm):
         for length in self.lengths:
             total *= length
         self.iterable = range(total)
-        get_elem = lambda point : [arg[offset] for arg, offset in zip(args, self.__offset__(point))]
-        args = list(map(get_elem, self.iterable))
-        if self.number == 0:
-            args = []
-        if self.number == 1:
-            args = list(map(lambda x : x[0], args))
+        args = self.__values__(args)
         if enum:
             args = list(enumerate(args))
         self.values = args
@@ -160,16 +165,19 @@ class nqdm(tqdm.tqdm):
             depth = [depth]*self.number
         self.depth = depth
     def __set_order__(self, order):
-        if isinstance(order, list):
-            if len(order) != self.number:
-                order = "first"
-            if any((i not in order for i in range(self.number))):
-                order = "first"
         if order == "first":
             order = list(range(self.number))
         if order == "last":
             order = list(range(self.number-1, -1, -1))
+        order = self.__check_order__(order)
         self.order = order
+    def __check_order__(self, order):
+        if isinstance(order, list):
+            mismatch = len(order) != self.number
+            failed = any((i not in order for i in range(self.number)))
+            if mismatch or failed:
+                order = list(range(self.number))
+        return order
     def __offset__(self, point):
         indices = []
         for length in self.lengths:
@@ -177,3 +185,11 @@ class nqdm(tqdm.tqdm):
             point //= length
         indices = [indices[order_i] for order_i in self.order]
         return indices
+    def __values__(self, args):
+        get_elem = lambda point : [arg[offset] for arg, offset in zip(args, self.__offset__(point))]
+        args = list(map(get_elem, self.iterable))
+        if self.number == 0:
+            args = []
+        if self.number == 1:
+            args = list(map(lambda x : x[0], args))
+        return args
