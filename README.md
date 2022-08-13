@@ -21,7 +21,7 @@ pip install nqdm
 
 First of all, you need to import nqdm.
 ```
-import nqdm
+from nqdm import nqdm
 ```
 
 Let's explore some use cases of nqdm:
