@@ -97,10 +97,6 @@ class nqdm(tqdm.tqdm):
 
             Whether data is enumerated or not
 
-        disable : bool = False
-
-            Progress bar is not displayed if set to True
-
 
         Attributes
         -----------
@@ -133,31 +129,30 @@ class nqdm(tqdm.tqdm):
         if enum:
             args = list(enumerate(args))
         self.values = args
+    def v(self):
+        return self.values
     def __iter__(self):
-        if self.disable:
-            yield self.values
-        else:
-            mininterval = self.mininterval
-            last_print_t = self.last_print_t
-            last_print_n = self.last_print_n
-            min_start_t = self.start_t+self.delay
-            time = self._time
-            n_copy = self.n
-            try:
-                print("\n")
-                for ind in self.iterable:
-                    yield self.values[ind]
-                    n_copy += 1
-                    if n_copy - last_print_n >= self.miniters:
-                        cur_t = time()
-                        dif_t = cur_t - last_print_t
-                        if dif_t >= mininterval and cur_t >= min_start_t:
-                            self.update(n_copy - last_print_n)
-                            last_print_n = self.last_print_n
-                            last_print_t = self.last_print_t
-            finally:
-                self.n = n_copy
-                self.close()
+        mininterval = self.mininterval
+        last_print_t = self.last_print_t
+        last_print_n = self.last_print_n
+        min_start_t = self.start_t+self.delay
+        time = self._time
+        n_copy = self.n
+        try:
+            print("\n")
+            for ind in self.iterable:
+                yield self.values[ind]
+                n_copy += 1
+                if n_copy - last_print_n >= self.miniters:
+                    cur_t = time()
+                    dif_t = cur_t - last_print_t
+                    if dif_t >= mininterval and cur_t >= min_start_t:
+                        self.update(n_copy - last_print_n)
+                        last_print_n = self.last_print_n
+                        last_print_t = self.last_print_t
+        finally:
+            self.n = n_copy
+            self.close()
     def __set_depth__(self, depth):
         if isinstance(depth, list):
             if len(depth) != self.number:
