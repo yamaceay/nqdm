@@ -121,10 +121,10 @@ class nqdm(tqdm.tqdm):
         args = list(map(__process__, args, self.depth))
         lengths = list(map(len, args))
         self.lengths = [lengths[order_i] for order_i in reverse_order]
-        total = 1
+        self.total = 1
         for length in self.lengths:
-            total *= length
-        self.iterable = range(total)
+            self.total *= length
+        self.iterable = range(self.total)
         args = self.__values__(args)
         if enum:
             args = list(enumerate(args))
