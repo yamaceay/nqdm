@@ -3,6 +3,7 @@
         - Can work with different types of data
         - Is implemented using TQDM"""
 import tqdm
+import numpy
 def __has__(arg, feature):
     return hasattr(type(arg),feature)
 def __got__(arg, feature):
@@ -97,6 +98,10 @@ class nqdm(tqdm.tqdm):
 
             Whether data is enumerated or not
 
+        random : bool = False
+
+            Whether tuples are yielded in random order or not
+
 
         Attributes
         -----------
@@ -111,8 +116,16 @@ class nqdm(tqdm.tqdm):
 
         lengths : list
 
-            Lengths of each argument passed into"""
-    def __init__(self, *args, depth = 0, order = "first", enum = False, **kwargs):
+            Lengths of each argument passed into
+            
+        Methods
+        -----------
+
+        v() -> list
+
+            Values to be iterated
+        """
+    def __init__(self, *args, depth = 0, order = "first", enum = False, random = False, **kwargs):
         super().__init__(**kwargs)
         self.number = len(args)
         self.__set_depth__(depth)
@@ -129,6 +142,7 @@ class nqdm(tqdm.tqdm):
         if enum:
             args = list(enumerate(args))
         self.values = args
+        self.random = random
     def v(self):
         return self.values
     def __iter__(self):
@@ -140,7 +154,10 @@ class nqdm(tqdm.tqdm):
         n_copy = self.n
         try:
             print("\n")
-            for ind in self.iterable:
+            iterable = self.iterable
+            if self.random:
+                iterable = numpy.random.permutation(iterable)
+            for ind in iterable:
                 yield self.values[ind]
                 n_copy += 1
                 if n_copy - last_print_n >= self.miniters:
