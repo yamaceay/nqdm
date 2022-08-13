@@ -3,9 +3,12 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+
 setuptools.setup(
     name="nqdm",
-    version="0.4.2",
+    version="0.4.3",
     author="Yamac Eren Ay",
     author_email="yamacerenay2001@gmail.com",
     description="NQDM -- An extension of TQDM which enables you to loop over multiple objects simultaneously, and specify the depth of iteration for each object. It is just pure Python magic, no extra libraries needed. It is customizable, minimal and open source.",
@@ -18,8 +21,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent"
     ],
-    install_requires=[
-          'tqdm==4.64.0'
-      ],
+    install_requires=required,
     python_requires='>=3.8'
 )
