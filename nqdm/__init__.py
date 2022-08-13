@@ -160,7 +160,13 @@ class nqdm(tqdm.tqdm):
             stop = self.__len__()
         if step is None:
             step = 1
-        return nqdm(self.values[start:stop:step], random=self.random)
+        return nqdm(
+            self.values[start:stop:step], 
+            random=self.random,
+            desc=self.desc,
+            leave=self.leave,
+            colour=self.colour
+        )
     def __len__(self):
         return self.total
     def __iter__(self):
