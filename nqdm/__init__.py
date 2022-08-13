@@ -145,6 +145,10 @@ class nqdm(tqdm.tqdm):
         self.random = random
     def v(self):
         return self.values
+    def __getitem__(self, key):
+        return self.values[key]
+    def __len__(self):
+        return self.total
     def __iter__(self):
         mininterval = self.mininterval
         last_print_t = self.last_print_t
