@@ -145,8 +145,22 @@ class nqdm(tqdm.tqdm):
         self.random = random
     def v(self):
         return self.values
-    def __getitem__(self, key):
-        return self.values[key]
+    def __getitem__(self, subscript):
+        if isinstance(subscript, slice):
+            return self.__getslice__(subscript)
+        else:
+            return self.values[subscript]
+    def __getslice__(self, subscript):
+        start = subscript.start
+        stop = subscript.stop
+        step = subscript.step
+        if start is None:
+            start = 0
+        if stop is None:
+            stop = self.__len__()
+        if step is None:
+            step = 1
+        return nqdm(self.values[start:stop:step], random=self.random)
     def __len__(self):
         return self.total
     def __iter__(self):
