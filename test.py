@@ -218,6 +218,22 @@ class TestNqdm(unittest.TestCase):
             self.assertEqual(arr1[0], arr1_[0])
             self.assertListEqual(arr1[1], arr1_[1])
     """
+    Tests the effects of random parameter
+    """
+    def test_random_1(self):
+        array = np.arange(25)
+        marked = {i: 0 for i in array}
+        expected = {i: 1 for i in array}
+        for i in nqdm(array, random=True):
+            marked[i]+=1
+        self.assertEqual(marked, expected)        
+    def test_random_2(self):
+        array = np.arange(25)
+        marked = {i: 0 for i in array}
+        for i in nqdm(array, random=True):
+            marked[i]+=1
+        self.assertTrue(all([i in range(2) for i in marked.values()]))
+    """
     Stresses the whole algorithm
     """
     def test_stress_1(self):
