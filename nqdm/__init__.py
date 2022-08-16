@@ -102,54 +102,44 @@ class nqdm(tqdm.tqdm):
 
             Whether tuples are yielded in random order or not
 
-
-        Attributes
-        -----------
-
-        values : list
-
-            List of iterable objects and single variables
-
-        iterable : list
-
-            List of indices ranging from 0 to # of total iterations - 1
-
-        lengths : list
-
-            Lengths of each argument passed into
-            
         Methods
         -----------
 
-        v() -> list
+        values() -> list
 
-            Values to be iterated
+            List of iterable objects and single variables
+
+        shape() -> list
+
+            Lengths of each iterable object
         """
-    def __init__(self, *args, depth = 0, order = "first", enum = False, random = False, **kwargs):
+    def __init__(self, *args, depth = 0, order = "first", enum = False, random = False, total = 0, **kwargs):
         super().__init__(**kwargs)
-        self.number = len(args)
+        self._number = len(args)
         self.__set_depth__(depth)
         self.__set_order__(order)
-        reverse_order = list(map(lambda kv : kv[1], sorted(zip(self.order, range(self.number)))))
-        args = list(map(__process__, args, self.depth))
+        reverse_order = list(map(lambda kv : kv[1], sorted(zip(self._order, range(self._number)))))
+        args = list(map(__process__, args, self._depth))
         lengths = list(map(len, args))
-        self.lengths = [lengths[order_i] for order_i in reverse_order]
-        self.total = 1
-        for length in self.lengths:
-            self.total *= length
-        self.iterable = range(self.total)
+        self._lengths = [lengths[order_i] for order_i in reverse_order]
+        self._total = 1
+        for length in self._lengths:
+            self._total *= length
+        self._iterable = range(self._total)
         args = self.__values__(args)
         if enum:
             args = list(enumerate(args))
-        self.values = args
-        self.random = random
-    def v(self):
-        return self.values
+        self._values = args
+        self._random = random
+    def values(self):
+        return self._values
+    def shape(self):
+        return self._lengths
     def __getitem__(self, subscript):
         if isinstance(subscript, slice):
             return self.__getslice__(subscript)
         else:
-            return self.values[subscript]
+            return self._values[subscript]
     def __getslice__(self, subscript):
         start = subscript.start
         stop = subscript.stop
@@ -161,14 +151,14 @@ class nqdm(tqdm.tqdm):
         if step is None:
             step = 1
         return nqdm(
-            self.values[start:stop:step], 
-            random=self.random,
+            self._values[start:stop:step], 
+            random=self._random,
             desc=self.desc,
             leave=self.leave,
             colour=self.colour
         )
     def __len__(self):
-        return self.total
+        return self._total
     def __iter__(self):
         mininterval = self.mininterval
         last_print_t = self.last_print_t
@@ -178,11 +168,11 @@ class nqdm(tqdm.tqdm):
         n_copy = self.n
         try:
             print("\n")
-            iterable = self.iterable
-            if self.random:
+            iterable = self._iterable
+            if self._random:
                 iterable = numpy.random.permutation(iterable)
             for ind in iterable:
-                yield self.values[ind]
+                yield self._values[ind]
                 n_copy += 1
                 if n_copy - last_print_n >= self.miniters:
                     cur_t = time()
@@ -196,37 +186,37 @@ class nqdm(tqdm.tqdm):
             self.close()
     def __set_depth__(self, depth):
         if isinstance(depth, list):
-            if len(depth) != self.number:
+            if len(depth) != self._number:
                 depth = 0
         if isinstance(depth, int):
-            depth = [depth]*self.number
-        self.depth = depth
+            depth = [depth]*self._number
+        self._depth = depth
     def __set_order__(self, order):
         if order == "first":
-            order = list(range(self.number))
+            order = list(range(self._number))
         if order == "last":
-            order = list(range(self.number-1, -1, -1))
+            order = list(range(self._number-1, -1, -1))
         order = self.__check_order__(order)
-        self.order = order
+        self._order = order
     def __check_order__(self, order):
         if isinstance(order, list):
-            mismatch = len(order) != self.number
-            failed = any((i not in order for i in range(self.number)))
+            mismatch = len(order) != self._number
+            failed = any((i not in order for i in range(self._number)))
             if mismatch or failed:
-                order = list(range(self.number))
+                order = list(range(self._number))
         return order
     def __offset__(self, point):
         indices = []
-        for length in self.lengths:
+        for length in self._lengths:
             indices.append(point % length)
             point //= length
-        indices = [indices[order_i] for order_i in self.order]
+        indices = [indices[order_i] for order_i in self._order]
         return indices
     def __values__(self, args):
         get_elem = lambda point : [arg[offset] for arg, offset in zip(args, self.__offset__(point))]
-        args = list(map(get_elem, self.iterable))
-        if self.number == 0:
+        args = list(map(get_elem, self._iterable))
+        if self._number == 0:
             args = []
-        if self.number == 1:
+        if self._number == 1:
             args = list(map(lambda x : x[0], args))
         return args
