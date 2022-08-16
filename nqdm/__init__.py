@@ -98,6 +98,10 @@ class nqdm(tqdm.tqdm):
 
             Whether data is enumerated or not
 
+        total : int = 0
+
+            The number of selected variables (all if set to 0)
+
         random : bool = False
 
             Whether tuples are yielded in random order or not
@@ -122,10 +126,13 @@ class nqdm(tqdm.tqdm):
         args = list(map(__process__, args, self._depth))
         lengths = list(map(len, args))
         self._lengths = [lengths[order_i] for order_i in reverse_order]
-        self._total = 1
-        for length in self._lengths:
-            self._total *= length
-        self._iterable = range(self._total)
+        if total == 0:
+            self._total = 1
+            for length in self._lengths:
+                self.total *= length
+        else:
+            self.total = total
+        self._iterable = range(self.total)
         args = self.__values__(args)
         if enum:
             args = list(enumerate(args))
@@ -158,7 +165,7 @@ class nqdm(tqdm.tqdm):
             colour=self.colour
         )
     def __len__(self):
-        return self._total
+        return self.total
     def __iter__(self):
         mininterval = self.mininterval
         last_print_t = self.last_print_t
