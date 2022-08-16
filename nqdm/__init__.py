@@ -98,9 +98,9 @@ class nqdm(tqdm.tqdm):
 
             Whether data is enumerated or not
 
-        total : int = 0
+        maxiter : int = 0
 
-            The number of selected variables (all if set to 0)
+            The number of iterated variables (all if set to 0)
 
         random : bool = False
 
@@ -117,7 +117,7 @@ class nqdm(tqdm.tqdm):
 
             Lengths of each iterable object
         """
-    def __init__(self, *args, depth = 0, order = "first", enum = False, random = False, total = 0, **kwargs):
+    def __init__(self, *args, depth = 0, order = "first", enum = False, random = False, maxiter = 0, **kwargs):
         super().__init__(**kwargs)
         self._number = len(args)
         self.__set_depth__(depth)
@@ -126,13 +126,11 @@ class nqdm(tqdm.tqdm):
         args = list(map(__process__, args, self._depth))
         lengths = list(map(len, args))
         self._lengths = [lengths[order_i] for order_i in reverse_order]
-        if total == 0:
-            self._total = 1
-            for length in self._lengths:
-                self.total *= length
-        else:
-            self.total = total
+        self.total = 1
+        for length in self._lengths:
+            self.total *= length
         self._iterable = range(self.total)
+        self.maxiter = min(maxiter, self.total) if maxiter > 0 else self.total
         args = self.__values__(args)
         if enum:
             args = list(enumerate(args))
@@ -178,7 +176,8 @@ class nqdm(tqdm.tqdm):
             iterable = self._iterable
             if self._random:
                 iterable = numpy.random.permutation(iterable)
-            for ind in iterable:
+            for i in range(self.maxiter):
+                ind = iterable[i]
                 yield self._values[ind]
                 n_copy += 1
                 if n_copy - last_print_n >= self.miniters:
