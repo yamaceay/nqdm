@@ -4,6 +4,7 @@
         - Is implemented using TQDM"""
 import tqdm
 import numpy
+import plotly_express
 def __has__(arg, feature):
     return hasattr(type(arg),feature)
 def __got__(arg, feature):
@@ -116,6 +117,14 @@ class nqdm(tqdm.tqdm):
         shape() -> list
 
             Lengths of each iterable object
+
+        history() -> list
+
+            Number of iterations over seconds
+
+        plot_history() -> None
+
+            Plots the history
         """
     def __init__(self, *args, depth = 0, order = "first", enum = False, random = False, maxiter = 0, **kwargs):
         super().__init__(**kwargs)
@@ -140,6 +149,21 @@ class nqdm(tqdm.tqdm):
         return self._values
     def shape(self):
         return self._lengths
+    def history(self):
+        times = list(self._history.keys())
+        freqs = list(self._history.values())
+        if len(times):
+            times = [t - times[0] for t in times]
+        return times, freqs
+    def plot_history(self):
+        timeline, history = self.history()
+        plot = plotly_express.line(
+            x=timeline,
+            y=history,
+            title="Benchmark",
+            labels={"x": "Timestamps", "y": "# Iterations"}
+        )
+        plot.show()
     def __getitem__(self, subscript):
         if isinstance(subscript, slice):
             return self.__getslice__(subscript)
@@ -170,6 +194,7 @@ class nqdm(tqdm.tqdm):
         last_print_n = self.last_print_n
         min_start_t = self.start_t+self.delay
         time = self._time
+        self._history = dict()
         n_copy = self.n
         try:
             print("\n")
@@ -180,11 +205,13 @@ class nqdm(tqdm.tqdm):
                 ind = iterable[i]
                 yield self._values[ind]
                 n_copy += 1
-                if n_copy - last_print_n >= self.miniters:
+                n_left = n_copy - last_print_n
+                if n_left >= self.miniters:
                     cur_t = time()
                     dif_t = cur_t - last_print_t
                     if dif_t >= mininterval and cur_t >= min_start_t:
-                        self.update(n_copy - last_print_n)
+                        self.update(n_left)  
+                        self._history.update({cur_t: n_left})
                         last_print_n = self.last_print_n
                         last_print_t = self.last_print_t
         finally:
