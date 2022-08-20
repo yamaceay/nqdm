@@ -150,14 +150,23 @@ class nqdm(tqdm.tqdm):
         return self._values
     def shape(self):
         return self._lengths
-    def history(self):
+    def history(self, second=False):
         times = list(self._history.keys())
         freqs = list(self._history.values())
         if len(times):
             times = [t - times[0] for t in times]
+            if second:
+                int_times = [int(t) for t in times]
+                new_freqs = {i: 0 for i in range(int_times[0], int_times[len(int_times) - 1] + 1)}
+                for int_t in int_times:
+                    for t, f in zip(times, freqs):
+                        if int(t) == int_t:
+                            new_freqs[int_t] += f
+                times = list(sorted(new_freqs))
+                freqs = [new_freqs[t] for t in times]
         return times, freqs
-    def plot_history(self):
-        timeline, history = self.history()
+    def plot_history(self, second=False):
+        timeline, history = self.history(second=second)
         plot = plotly_express.line(
             x=timeline,
             y=history,
