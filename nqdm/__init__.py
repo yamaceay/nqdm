@@ -145,6 +145,7 @@ class nqdm(tqdm.tqdm):
             args = list(enumerate(args))
         self._values = args
         self._random = random
+        self._history = dict()
     def values(self):
         return self._values
     def shape(self):
@@ -161,7 +162,7 @@ class nqdm(tqdm.tqdm):
             x=timeline,
             y=history,
             title="Benchmark",
-            labels={"x": "Timestamps", "y": "# Iterations"}
+            labels={"x": "# Seconds", "y": "# Iterations"}
         )
         plot.show()
     def __getitem__(self, subscript):
@@ -194,7 +195,6 @@ class nqdm(tqdm.tqdm):
         last_print_n = self.last_print_n
         min_start_t = self.start_t+self.delay
         time = self._time
-        self._history = dict()
         n_copy = self.n
         try:
             print("\n")
@@ -211,12 +211,14 @@ class nqdm(tqdm.tqdm):
                     dif_t = cur_t - last_print_t
                     if dif_t >= mininterval and cur_t >= min_start_t:
                         self.update(n_left)  
-                        self._history.update({cur_t: n_left})
                         last_print_n = self.last_print_n
                         last_print_t = self.last_print_t
         finally:
             self.n = n_copy
             self.close()
+    def update(self, n):
+        super().update(n)
+        self._history.update({self._time(): n})
     def __set_depth__(self, depth):
         if isinstance(depth, list):
             if len(depth) != self._number:
