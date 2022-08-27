@@ -158,10 +158,8 @@ class nqdm(tqdm.tqdm):
             if second:
                 int_times = [int(t) for t in times]
                 new_freqs = {i: 0 for i in range(int_times[0], int_times[len(int_times) - 1] + 1)}
-                for int_t in int_times:
-                    for t, f in zip(times, freqs):
-                        if int(t) == int_t:
-                            new_freqs[int_t] += f
+                for t, f in zip(times, freqs):
+                    new_freqs[int(t)] += f
                 times = list(sorted(new_freqs))
                 freqs = [new_freqs[t] for t in times]
         return times, freqs
