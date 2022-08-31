@@ -4,7 +4,6 @@
         - Is implemented using TQDM"""
 import tqdm
 import numpy
-import plotly_express
 def __has__(arg, feature):
     return hasattr(type(arg),feature)
 def __got__(arg, feature):
@@ -122,9 +121,6 @@ class nqdm(tqdm.tqdm):
 
             Number of iterations over seconds
 
-        plot_history() -> None
-
-            Plots the history
         """
     def __init__(self, *args, depth = 0, order = "first", enum = False, random = False, maxiter = 0, **kwargs):
         super().__init__(**kwargs)
@@ -150,28 +146,12 @@ class nqdm(tqdm.tqdm):
         return self._values
     def shape(self):
         return self._lengths
-    def history(self, second=False):
+    def history(self):
         times = list(self._history.keys())
         freqs = list(self._history.values())
-        if len(times):
-            times = [t - times[0] for t in times]
-            if second:
-                int_times = [int(t) for t in times]
-                new_freqs = {i: 0 for i in range(int_times[0], int_times[len(int_times) - 1] + 1)}
-                for t, f in zip(times, freqs):
-                    new_freqs[int(t)] += f
-                times = list(sorted(new_freqs))
-                freqs = [new_freqs[t] for t in times]
+        t_offset = times[0] if len(times) else 0
+        times = [t - t_offset for t in times]
         return times, freqs
-    def plot_history(self, second=False):
-        timeline, history = self.history(second=second)
-        plot = plotly_express.line(
-            x=timeline,
-            y=history,
-            title="Benchmark",
-            labels={"x": "# Seconds", "y": "# Iterations"}
-        )
-        plot.show()
     def __getitem__(self, subscript):
         if isinstance(subscript, slice):
             return self.__getslice__(subscript)
@@ -209,14 +189,12 @@ class nqdm(tqdm.tqdm):
             if self._random:
                 iterable = numpy.random.permutation(iterable)
             for i in range(self.maxiter):
-                ind = iterable[i]
-                yield self._values[ind]
+                yield self._values[iterable[i]]
                 n_copy += 1
-                n_left = n_copy - last_print_n
-                if n_left >= self.miniters:
+                if (n_left := n_copy - last_print_n) >= self.miniters:
                     cur_t = time()
-                    dif_t = cur_t - last_print_t
-                    if dif_t >= mininterval and cur_t >= min_start_t:
+                    last_track_t = max(mininterval + last_print_t, min_start_t)
+                    if cur_t >= last_track_t:
                         self.update(n_left)  
                         last_print_n = self.last_print_n
                         last_print_t = self.last_print_t
@@ -255,7 +233,7 @@ class nqdm(tqdm.tqdm):
         indices = [indices[order_i] for order_i in self._order]
         return indices
     def __values__(self, args):
-        get_elem = lambda point : [arg[offset] for arg, offset in zip(args, self.__offset__(point))]
+        get_elem = lambda point : tuple(arg[offset] for arg, offset in zip(args, self.__offset__(point)))
         args = list(map(get_elem, self._iterable))
         if self._number == 0:
             args = []
